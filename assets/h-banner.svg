@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 128">
+    <defs>
+        <linearGradient id="saberr-banner-gradient" x1="26" y1="30" x2="104" y2="100" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#FF3D9E"/>
+            <stop offset="1" stop-color="#B01E68"/>
+        </linearGradient>
+        <mask id="saberr-banner-cut">
+            <path d="M46 26 L98 26 Q102 26 102 30 L102 82 Q102 102 82 102 L30 102 Q26 102 26 98 L26 46 Q26 26 46 26 Z"
+                  fill="#fff"/>
+            <line x1="100" y1="28" x2="28" y2="100" stroke="#000" stroke-width="7" stroke-linecap="round"/>
+            <line x1="87" y1="36.7" x2="51" y2="72.7" stroke="#000" stroke-width="12" stroke-linecap="round"/>
+            <line x1="77" y1="55.3" x2="41" y2="91.3" stroke="#000" stroke-width="12" stroke-linecap="round"/>
+        </mask>
+    </defs>
+    <rect x="0" y="0" width="640" height="128" fill="#1A0E26"/>
+    <g transform="translate(145.8947 -10.1053) scale(1.15789)">
+        <path d="M46 26 L98 26 Q102 26 102 30 L102 82 Q102 102 82 102 L30 102 Q26 102 26 98 L26 46 Q26 26 46 26 Z"
+              fill="url(#saberr-banner-gradient)" mask="url(#saberr-banner-cut)"/>
+        <line x1="85.925" y1="36.733" x2="50.735" y2="72.242" stroke="#FFB3DA" stroke-width="3.5"
+              stroke-linecap="round"/>
+        <line x1="77.033" y1="55.958" x2="41.843" y2="91.467" stroke="#FFB3DA" stroke-width="3.5"
+              stroke-linecap="round"/>
+    </g>
+    <text x="284" y="64" fill="#F7E8F1" dominant-baseline="central"
+          font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="58" font-weight="700"
+          letter-spacing="1">Saberr</text>
+</svg>

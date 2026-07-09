@@ -1,0 +1,127 @@
+{
+    "release_groups": {
+        "Erai-raws": {
+            "submitter": "Erai-raws",
+            "unique_filter": {
+                "startswith": "[Erai-raws]"
+            },
+            "regex": [
+                {
+                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\]\\s+(?P<title>.+?)\\s*-\\s*(?P<episode_number>\\d+)(?:v(?P<version_number>\\d+))?(?:\\s*\\((?P<language_code>[A-Za-z]{1,3})\\))?(?:\\s*\\((?P<repack_indicator>REPACK)\\))?\\s*\\[(?P<resolution>\\d+p)\\s+(?P<source>[A-Z]+)\\s.*\\s(?P<encoding>HEVC|AVC|AV1)",
+                    "required_pattern_groups": [
+                        "release_group",
+                        "title",
+                        "episode_number"
+                    ]
+                }
+            ],
+            "default_encoding": "AVC",
+            "default_resolution": "1080p",
+            "default_language_code": "JP",
+            "batch_keyword": "[BATCH]",
+            "episode_numbering_affinity": "STRICT"
+        },
+        "DKB": {
+            "submitter": "DKB0512",
+            "unique_filter": {
+                "startswith": "[DKB]"
+            },
+            "regex": [
+                {
+                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\]\\s+(?P<title>.+?)\\s*-\\s*S(?P<season_number>\\d{2,4})E(?P<episode_number>\\d{2,4})\\s*\\[(?P<resolution>\\d+p)\\](?:\\[(?:V(?P<version_number>\\d+))\\])?(?:\\[[^\\]]*\\])*\\[(?P<encoding>HEVC|AVC|AV1)",
+                    "required_pattern_groups": [
+                        "release_group",
+                        "title",
+                        "season_number",
+                        "episode_number"
+                    ]
+                },
+                {
+                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\]\\s+(?P<title>.+?)\\s*-\\s*(?P<episode_number>\\d+)\\s*\\[(?P<resolution>\\d+p)\\](?:\\[(?:V(?P<version_number>\\d+))\\])?(?:\\[[^\\]]*\\])*\\[(?P<encoding>HEVC|AVC|AV1)",
+                    "required_pattern_groups": [
+                        "release_group",
+                        "title",
+                        "episode_number"
+                    ]
+                }
+            ],
+            "default_encoding": "HEVC",
+            "default_resolution": "1080p",
+            "default_language_code": "JP",
+            "batch_keyword": "[Batch]",
+            "episode_numbering_affinity": "TVDB"
+        },
+        "SubsPlease": {
+            "submitter": "subsplease",
+            "unique_filter": {
+                "startswith": "[SubsPlease]"
+            },
+            "regex": [
+                {
+                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\]\\s+(?P<title>.+?)\\s*-\\s*(?P<episode_number>\\d+)(?:v(?P<version_number>\\d+))?\\s*\\((?P<resolution>\\d+p)\\)",
+                    "required_pattern_groups": [
+                        "release_group",
+                        "title",
+                        "episode_number"
+                    ]
+                }
+            ],
+            "default_encoding": "AVC",
+            "default_resolution": "1080p",
+            "default_language_code": "JP",
+            "batch_keyword": "[Batch]",
+            "episode_numbering_affinity": "CONTINUOUS_PARTS"
+        },
+        "Judas": {
+            "submitter": "Judas",
+            "unique_filter": {
+                "startswith": "[Judas]"
+            },
+            "regex": [
+                {
+                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\]\\s+(?P<title>.+?)(?:\\s*\\([^)]*\\))?\\s*-\\s*S(?P<season_number>\\d{2,4})E(?P<episode_number>\\d{2,4})(?:v(?P<version_number>\\d+))?\\s*(?:\\[(?P<censorship_status>Uncensored)\\])?(?:\\[[^\\]]*\\])*\\[(?P<resolution>\\d+p)\\]\\[(?P<encoding>HEVC|AVC|AV1)",
+                    "required_pattern_groups": [
+                        "release_group",
+                        "title",
+                        "season_number",
+                        "episode_number"
+                    ]
+                },
+                {
+                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\]\\s+(?P<title>.+?)(?:\\s*\\([^)]*\\))?\\s*-\\s*(?P<episode_number>\\d+)(?:v(?P<version_number>\\d+))?\\s*(?:\\[(?P<censorship_status>Uncensored)\\])?(?:\\[[^\\]]*\\])*\\[(?P<resolution>\\d+p)\\]\\[(?P<encoding>HEVC|AVC|AV1)",
+                    "required_pattern_groups": [
+                        "release_group",
+                        "title",
+                        "episode_number"
+                    ]
+                }
+            ],
+            "default_encoding": "HEVC",
+            "default_resolution": "1080p",
+            "default_language_code": "JP",
+            "batch_keyword": "(Batch)",
+            "episode_numbering_affinity": "TVDB"
+        },
+        "ASW": {
+            "submitter": "AkihitoSubsWeeklies",
+            "unique_filter": {
+                "startswith": "[ASW]"
+            },
+            "regex": [
+                {
+                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\]\\s+(?P<title>.+?)(?:\\s*\\((?P<language_code>[A-Za-z]{1,3})\\))?\\s*-\\s*(?P<episode_number>\\d+)(?:v(?P<version_number>\\d+))?\\s*\\[(?P<resolution>\\d+p)\\s+(?P<encoding>[A-Za-z0-9]+)",
+                    "required_pattern_groups": [
+                        "release_group",
+                        "title",
+                        "episode_number"
+                    ]
+                }
+            ],
+            "default_encoding": "HEVC",
+            "default_resolution": "1080p",
+            "default_language_code": "JP",
+            "batch_keyword": "(Batch)",
+            "episode_numbering_affinity": "CONTINUOUS_PARTS"
+        }
+    }
+}

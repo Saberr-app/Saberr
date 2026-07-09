@@ -1,0 +1,52 @@
+services:
+  saberr:
+    image: ghcr.io/saberr-app/saberr:latest
+    restart: unless-stopped
+    container_name: saberr
+    environment:
+      ADMIN_USERNAME: admin  # username for login
+      ADMIN_PASSWORD:  # TODO: password for login
+      JWT_SECRET:  # TODO: generate a secret (https://utilitools.net/dev/jwt-secret-generator/)
+      PUID: 1000  # host user id that should own ./data (and any library volume you mount); use `id -u`
+      PGID: 1000  # host group id; use `id -g`
+      DB_USER: saberr  # Must be the same as MYSQL_USER in saberr_db service
+      DB_PASSWORD: saberr  # Must be the same as MYSQL_PASSWORD in saberr_db service
+      DB_HOST: saberr_db  # Must be the same as the saberr_db service name
+      DB_PORT: 3306  # Must be the same as the port exposed by the saberr_db service
+      DB_NAME: saberr  # Must be the same as MYSQL_DATABASE in saberr_db service
+      SQL_ECHO: false  # Very spammy (non-persisting logs)
+      ALLOW_ALL_ORIGINS: false
+      PROXY_EXTERNAL_IMAGES: false  # Not recommended (yet)
+      PORT: 8000  # Internal port. Must match the right-side port in the ports section below
+      LOG_LEVEL: INFO  # debug, info, warning, error, critical
+    depends_on:
+      saberr_db:
+        condition: service_healthy
+    ports:
+      - "8125:8000"  # Exposed:internal
+    volumes:
+      - ./data:/app/data
+      # You need to make sure that downloads and library mounts can be accessed by Saberr (owned by PUID:PGID set above)
+      # If you're unsure how this works, check out Servarr's guide (https://wiki.servarr.com/docker-guide) or consult
+      # your favorite yapping LLM. A helpful command that you might need: sudo chown -R 1000:1000 ./downloads ./library
+      # - /path/to/qbit/downloads:/downloads
+      # - /path/to/library:/library
+
+  saberr_db:
+    image: mariadb:12.3.2
+    container_name: saberr_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: saberr
+      MYSQL_DATABASE: saberr
+      MYSQL_USER: saberr
+      MYSQL_PASSWORD: saberr
+    # ports:  # Uncomment to expose the database outside the container, if manual DB management is needed
+    #   - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - ./db_data:/var/lib/mysql

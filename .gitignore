@@ -1,0 +1,16 @@
+/.venv
+/.idea
+
+*.env
+*.pyc
+*.pyo
+*.pyd
+
+/build
+build_info.py
+THIRD-PARTY-NOTICES.txt
+/data
+/archived
+*/CLAUDE.md
+.CLAUDE
+/web
