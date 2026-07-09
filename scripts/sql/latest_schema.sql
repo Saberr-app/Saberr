@@ -317,11 +317,11 @@ CREATE TABLE IF NOT EXISTS notification
 CREATE TABLE IF NOT EXISTS audit_log
 (
     id         INT AUTO_INCREMENT PRIMARY KEY,
-    code       TEXT                                                                                                             NOT NULL,
-    category   ENUM ('APP', 'TORRENT_SELECTION', 'TORRENT_PROCESSING', 'TRACKED_ANIME', 'ANILIST', 'EXTERNAL_SERVICE', 'OTHER') NOT NULL,
-    text       TEXT                                                                                                             NOT NULL,
-    data       JSON                                                                                                             NOT NULL,
-    context_id TEXT                                                                                                             NOT NULL,
+    code       TEXT                                                                                                                                  NOT NULL,
+    category   ENUM ('APP', 'MAPPING_OVERRIDES', 'TORRENT_SELECTION', 'TORRENT_PROCESSING', 'TRACKED_ANIME', 'ANILIST', 'EXTERNAL_SERVICE', 'OTHER') NOT NULL,
+    text       TEXT                                                                                                                                  NOT NULL,
+    data       JSON                                                                                                                                  NOT NULL,
+    context_id TEXT                                                                                                                                  NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) COLLATE = utf8mb4_general_ci;
