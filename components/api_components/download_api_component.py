@@ -201,7 +201,7 @@ class DownloadAPIComponent(BaseComponent):
                 resume_on_add=True
             )
         except Exception as e:
-            self.logger.error(f"Error while sending torrent download to qbit: {e}", exc_info=True)
+            self.logger.debug(f"Error while sending torrent download to qbit: {e}", exc_info=True)
             await TorrentDownloadRepo(get_session()).update_downloads(
                 download_ids=[download.id for download in downloads],
                 status=TorrentDownloadStatus.FAILED_DOWNLOAD_INIT,
@@ -230,7 +230,7 @@ class DownloadAPIComponent(BaseComponent):
             try:
                 await thread_out(Path(download.destination_path).unlink, missing_ok=True)
             except Exception as e:
-                self.logger.error(f"Error while deleting imported file: {e}", exc_info=True)
+                self.logger.warning(f"Error while deleting imported file: {e}", exc_info=True)
         await self._download_component.delete_downloads_by_magnet_hashes(magnet_hashes=[download.torrent.magnet_hash],
                                                                          delete_from_qbit=body.delete_from_qbit,
                                                                          delete_from_disk=body.delete_from_disk)

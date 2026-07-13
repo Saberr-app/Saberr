@@ -144,7 +144,7 @@ class AnilistComponent(BaseServiceComponent):
                     anime_min = AnilistAnimeMinimal.from_dict(data)
                     app_state.ANILIST_TITLE_SEARCH_MINIMAL_RESULT[query] = anime_min
             except ExternalServiceException as e:
-                self.logger.error(f"Error while fetching anime search results for queries {titles_to_fetch}: {e}")
+                self.logger.warning(f"Error while fetching anime search results for queries {titles_to_fetch}: {e}")
             if i + 50 < len(titles_to_fetch):
                 await asyncio.sleep(0.5)
         result = {}

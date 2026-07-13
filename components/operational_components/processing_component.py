@@ -77,6 +77,8 @@ class ProcessingComponent(BaseOperationalComponent):
                                                                minimum_freshness=timedelta(weeks=2))
                 if len(tvdb_episodes) != len(tvdb_episode_ids):
                     raise TVDBIncompleteDataException(f"Not all TVDB episodes were found in this season type")
+            except TVDBIncompleteDataException:
+                raise
             except Exception as e:
                 raise PreprocessingFailedException(f"Failed to collect all required TVDB data: {e}") from e
         target_directory = Path(tracked_anime.show_parent_directory).resolve() / tracked_anime.show_folder_name
@@ -139,7 +141,7 @@ class ProcessingComponent(BaseOperationalComponent):
         try:
             await thread_out(self._copy_file, source_video_file_path, target_video_path)
         except Exception as e:
-            self.logger.error(f"Failed to copy video file to {target_video_path} for downloads "
+            self.logger.debug(f"Failed to copy video file to {target_video_path} for downloads "
                               f"{torrent_download_ids}: {e}", exc_info=True)
             await self._set_post_processing_status(succeeded=False, torrent_download_ids=torrent_download_ids, error=e)
         else:
@@ -182,7 +184,7 @@ class ProcessingComponent(BaseOperationalComponent):
                     try:
                         sibling.unlink()
                     except Exception as e:
-                        self.logger.error(f"Failed to delete existing file {sibling}: {e}", exc_info=True)
+                        self.logger.warning(f"Failed to delete existing file {sibling}: {e}", exc_info=True)
                     continue
                 renamed = directory / (new_stem + sibling.name[len(old_stem):])
                 if renamed.resolve() == sibling.resolve():
@@ -190,7 +192,7 @@ class ProcessingComponent(BaseOperationalComponent):
                 try:
                     sibling.replace(renamed)
                 except Exception as e:
-                    self.logger.error(f"Failed to rename {sibling} to {renamed}: {e}", exc_info=True)
+                    self.logger.debug(f"Failed to rename {sibling} to {renamed}: {e}", exc_info=True)
 
     def _copy_related_files(self, source_related_file_paths: list[Path], source_video_file_path: Path,
                             target_directory: Path, new_stem: str):
@@ -205,7 +207,7 @@ class ProcessingComponent(BaseOperationalComponent):
             try:
                 self._copy_file(source_related_file_path, target)
             except Exception as e:
-                self.logger.error(f"Failed to copy related file {source_related_file_path} to {target}: {e}",
+                self.logger.debug(f"Failed to copy related file {source_related_file_path} to {target}: {e}",
                                   exc_info=True)
 
     # noinspection PyMethodMayBeStatic
@@ -271,8 +273,8 @@ class ProcessingComponent(BaseOperationalComponent):
                 self._resolve_media_metadata, torrent.effective_download.destination_path
             )
         except Exception as e:
-            self.logger.warning(f"Failed to resolve media metadata for {torrent.effective_download.destination_path}: "
-                                f"{e}", exc_info=True)
+            self.logger.debug(f"Failed to resolve media metadata for {torrent.effective_download.destination_path}: "
+                              f"{e}", exc_info=True)
             file_size, duration, audio_tracks = None, None, [torrent.language_code]
         tvdb_episodes = [tvdb_episode for tvdb_episode in tvdb_episodes
                          if tvdb_episode.id in torrent.tracked_anime_episode.tvdb_episode_ids]

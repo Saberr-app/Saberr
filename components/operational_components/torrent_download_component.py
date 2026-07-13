@@ -3,7 +3,7 @@ from datetime import datetime, UTC, timedelta
 from typing import Coroutine, Iterable
 
 from common.db import get_session
-from common.exceptions import ExternalServiceException
+from common.exceptions import ExternalServiceException, TVDBIncompleteDataException
 from components.operational_components import BaseOperationalComponent
 from components.service_components.qbit_component import QBitComponent
 from config import config
@@ -97,7 +97,7 @@ class TorrentDownloadComponent(BaseOperationalComponent):
                 torrent_tags=torrent_tags
             )
         except Exception as e:
-            self.logger.error(f"Error while sending torrent download to qbit: {e}", exc_info=True)
+            self.logger.debug(f"Error while sending torrent download to qbit: {e}", exc_info=True)
             await torrent_download_repo.update_downloads(
                 download_ids=[download.id],
                 status=TorrentDownloadStatus.FAILED_DOWNLOAD_INIT,
@@ -183,7 +183,7 @@ class TorrentDownloadComponent(BaseOperationalComponent):
                         torrent_tags=torrent_tags
                     )
                 except Exception as e:
-                    self.logger.error(f"Error while sending torrent download to qbit: {e}", exc_info=True)
+                    self.logger.debug(f"Error while sending torrent download to qbit: {e}", exc_info=True)
                     await torrent_download_repo.update_downloads(
                         download_ids=[download.id for download in downloads],
                         status=TorrentDownloadStatus.FAILED_DOWNLOAD_INIT,
@@ -338,7 +338,10 @@ class TorrentDownloadComponent(BaseOperationalComponent):
                     )
                     download_status = TorrentDownloadStatus.FAILED_PROCESSING
                     statuses_to_audit.append(TorrentDownloadStatus.FAILED_PROCESSING)
-                    self.logger.warning(f"Error while processing torrent download: {e}", exc_info=True)
+                    if isinstance(e, TVDBIncompleteDataException):
+                        self.logger.debug(f"Error while processing torrent download: {e}")
+                    else:
+                        self.logger.warning(f"Error while processing torrent download: {e}", exc_info=True)
                 else:
                     await torrent_download_repo.update_downloads(
                         download_ids=[download.id for download in downloads],
