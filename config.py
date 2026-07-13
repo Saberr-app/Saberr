@@ -158,4 +158,8 @@ class _Config:
         )
 
 
-config = _Config.init()
+try:
+    config = _Config.init()
+except Exception as e_:
+    logger.error(f"Failed to init config instance: {e_}")
+    exit(1)

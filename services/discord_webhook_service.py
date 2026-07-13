@@ -55,7 +55,7 @@ class DiscordWebhookService(ThirdPartyService):
         else:
             response = await self._request("POST", webhook_url, json_=payload)
         if response.status not in range(200, 300):
-            self.logger.error(f"Failed to send Discord webhook: {response.status} | {response.text}")
+            self.logger.debug(f"Failed to send Discord webhook: {response.status} | {response.text}")
             raise ExternalServiceException(f"Discord webhook error: {response.status}")
 
     async def healthcheck(self, webhook_url: str):

@@ -1,11 +1,16 @@
 import asyncio
+import logging
 from collections.abc import AsyncIterator
 from typing import Callable
 
 from fastapi.sse import ServerSentEvent
 from starlette.requests import Request
 
+from common.exceptions import BaseAPIException
 from system import shutdown_event
+
+
+logger = logging.getLogger("SSE")
 
 
 def _nullify_unchanged(previous_status, current_status):
@@ -25,7 +30,13 @@ async def minimal_polling_sse(request: Request,
         frequency = 1
     ref, previous_status = 1, None
     while not shutdown_event.is_set() and not await request.is_disconnected():
-        current_status = await callable_(ref, **kwargs)
+        try:
+            current_status = await callable_(ref, **kwargs)
+        except BaseAPIException as e:
+            # response middleware normally intercepts this exception and returns it to the client with the
+            # appropriate status code, can't be achieved with streams therefore cleanly exit to avoid error logs
+            logger.debug(f"API exception while polling SSE: {e} ({e.code} - {e.detail})")
+            break
         new_status = current_status.model_copy()
         nullify_func(previous_status, current_status)
         previous_status = new_status

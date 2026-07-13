@@ -91,8 +91,8 @@ class TrackedAnimeEpisodeComponent(BaseOperationalComponent):
             if raise_on_tvdb_unavailability:
                 raise TVDBIncompleteDataException(f"Failed to fetch TVDB episodes for "
                                                   f"populating episode mappings data: {e}")
-            self.logger.warning(f"Failed to fetch TVDB episodes for populating episode mappings data: "
-                                f"(tvdb_id={tvdb_mappings[0].series_id}) {e}")
+            self.logger.debug(f"Failed to fetch TVDB episodes for populating episode mappings data: "
+                              f"(tvdb_id={tvdb_mappings[0].series_id}) {e}")
             return
         season_episode_mapping_map: dict[tuple, AnilistEpisodeTVDBMapping] = {
             (mapping.season_number, mapping.episode_number): mapping
@@ -110,5 +110,5 @@ class TrackedAnimeEpisodeComponent(BaseOperationalComponent):
                 raise TVDBIncompleteDataException(f"Failed to find all required TVDB episodes for "
                                                   f"populating episode mappings data")
             else:
-                self.logger.warning(f"Failed to find all required TVDB episodes for "
-                                    f"populating episode mappings data: {season_episode_mapping_map.keys()}")
+                self.logger.debug(f"Failed to find all required TVDB episodes for "
+                                  f"populating episode mappings data: {season_episode_mapping_map.keys()}")
