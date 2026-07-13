@@ -72,7 +72,7 @@ def test_copy_related_files(case: Case, tmp_path, make_processing_component, cap
     related, new_stem = case.setup(tmp_path)
     target_dir = tmp_path / "out"
 
-    with caplog.at_level(logging.ERROR):
+    with caplog.at_level(logging.DEBUG):
         component._copy_related_files(related, video, target_dir, new_stem)
 
     for name, text in case.expected_files.items():

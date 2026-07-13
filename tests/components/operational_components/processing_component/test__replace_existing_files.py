@@ -106,7 +106,7 @@ def test_replace_existing_files(case: Case, tmp_path, make_processing_component,
     component = make_processing_component()
     existing_files, new_stem, target_video_path = case.setup(tmp_path)
 
-    with caplog.at_level(logging.ERROR):
+    with caplog.at_level(logging.WARNING):
         component._replace_existing_files(existing_files, new_stem, target_video_path)
 
     case.check(tmp_path)

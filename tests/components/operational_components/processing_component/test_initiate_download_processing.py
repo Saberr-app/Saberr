@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 import components.operational_components.processing_component as pc_module
-from common.exceptions import PreprocessingFailedException
+from common.exceptions import PreprocessingFailedException, TVDBIncompleteDataException
 from constants import TorrentDownloadStatus
 from dto.qbit import QBitTorrent
 
@@ -99,7 +99,7 @@ CASES = [
     Case(id="no video file raises and skips finalize", mutate_env=_no_video,
          expected_exception=PreprocessingFailedException),
     Case(id="tvdb incomplete data raises", tvdb_structure_enabled=True, mutate_env=_incomplete_tvdb,
-         expected_exception=PreprocessingFailedException),
+         expected_exception=TVDBIncompleteDataException),
     Case(id="existing processed paths passed to finalize",
          existing_destinations=["/library/Show/Old.mkv"], check=_check_existing_passed),
 ]

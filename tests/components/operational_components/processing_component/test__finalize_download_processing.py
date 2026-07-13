@@ -105,7 +105,7 @@ async def test_finalize_download_processing(case: Case, tmp_path, make_processin
     mocker.patch(f"{_REPO}.get_downloads", return_value=[download])
     update_mock = mocker.patch(f"{_REPO}.update_downloads")
 
-    with caplog.at_level(logging.ERROR):
+    with caplog.at_level(logging.DEBUG):
         # magnet_hash/anilist_anime/tvdb_episodes only feed the discord step, which is off by default
         await component._finalize_download_processing(
             torrent_download_ids=[download.id], magnet_hash="h",
