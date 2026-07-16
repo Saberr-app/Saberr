@@ -337,7 +337,7 @@ CREATE TABLE IF NOT EXISTS saberr_metadata
 ) COLLATE = utf8mb4_general_ci;
 INSERT IGNORE INTO saberr_metadata (name, code, data)
 VALUES ('DB Schema metadata', 'db_schema_metadata', '{
-    "version": "0.1.0"
+    "version": "0.11.4"
 }');
 
 
