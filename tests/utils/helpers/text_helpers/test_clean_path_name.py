@@ -23,6 +23,11 @@ CASES = [
     Case(id="double quotes alternate open and close",
          raw='say "hi" and "bye"', expected_result="say “hi” and “bye”"),
     Case(id="double spaces collapsed and trimmed", raw="  a  b  c  ", expected_result="a b c"),
+    Case(id="trailing dot stripped", raw="Show.", expected_result="Show"),
+    Case(id="multiple trailing dots stripped", raw="Show...", expected_result="Show"),
+    Case(id="trailing dots and spaces stripped", raw="Show. . ", expected_result="Show"),
+    Case(id="whitespace control chars become a single space", raw="a\tb\nc", expected_result="a b c"),
+    Case(id="non-whitespace control chars removed", raw="a\x00b", expected_result="ab"),
     Case(id="clean string is unchanged",
          raw="Sousou no Frieren", expected_result="Sousou no Frieren"),
 ]
