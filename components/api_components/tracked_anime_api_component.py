@@ -26,6 +26,7 @@ from api.schemas.tracked_anime_schemas import (
     TrackedAnimeItemEpisodeList, TrackedAnimeItemEpisodeDetails, TrackedAnimeEpisodeUpdateRequest,
 )
 from system import UNSET
+from utils.helpers.text_helpers import clean_path_name
 
 
 class TrackedAnimeAPIComponent(BaseComponent):
@@ -55,7 +56,7 @@ class TrackedAnimeAPIComponent(BaseComponent):
             tvdb_structure_enabled=body.tvdb_structure_enabled,
             tvdb_season_type=body.tvdb_settings.tvdb_season_type,
             show_parent_directory=body.show_parent_directory,
-            show_folder_name=body.show_folder_name,
+            show_folder_name=clean_path_name(body.show_folder_name),
             episode_number_padding=body.episode_number_padding,
             season_number_padding=body.tvdb_settings.season_number_padding,
             season_directory_number_padding=body.tvdb_settings.season_directory_number_padding,
@@ -157,7 +158,7 @@ class TrackedAnimeAPIComponent(BaseComponent):
             tvdb_structure_enabled=body.tvdb_structure_enabled,
             tvdb_season_type=body.tvdb_settings.tvdb_season_type,
             show_parent_directory=body.show_parent_directory,
-            show_folder_name=body.show_folder_name,
+            show_folder_name=clean_path_name(body.show_folder_name),
             episode_number_padding=body.episode_number_padding,
             season_number_padding=body.tvdb_settings.season_number_padding,
             season_directory_number_padding=body.tvdb_settings.season_directory_number_padding,

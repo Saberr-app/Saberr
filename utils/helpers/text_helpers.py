@@ -122,6 +122,8 @@ def clean_path_name(path_name: str) -> str:
     path_name = path_name.replace("<", "‹")
     path_name = path_name.replace(">", "›")
     path_name = path_name.replace("|", "⏐")
-    path_name = path_name.replace("  ", " ")
+    path_name = re.sub(r"\s+", " ", path_name)
+    path_name = re.sub(r"[\x00-\x1f]", "", path_name)
     path_name = path_name.strip()
+    path_name = path_name.rstrip(" .")
     return path_name
