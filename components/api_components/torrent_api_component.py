@@ -327,6 +327,7 @@ class TorrentAPIComponent(BaseComponent):
             anilist_episode_part_ceiling=body.episode_part_ceiling
         )
 
+    @api_component
     async def override_torrent(self, torrent_id: int, body: TorrentOverrideRequest) -> TorrentOverrideResponse:
         torrent_repo = TorrentRepo(get_session())
         parent_torrent = await torrent_repo.get_torrent(torrent_id=torrent_id, load_relations=True)

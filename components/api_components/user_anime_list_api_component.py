@@ -288,6 +288,7 @@ class UserAnimeListAPIComponent(BaseComponent):
             )
         )
 
+    @api_component
     async def batch_update_anime_list_entries(self, body: UserAnimeBatchUpdateRequest) -> UserAnimeBatchUpdateResponse:
         list_entries = await self._anilist_list_component.update_user_list_entries(anilist_ids=body.anilist_ids,
                                                                                    status=body.data.status,
@@ -315,5 +316,6 @@ class UserAnimeListAPIComponent(BaseComponent):
         ) for list_entry in list_entries]
         return UserAnimeBatchUpdateResponse(updated_anime_list=items)
 
+    @api_component
     async def batch_delete_anime_list_entries(self, body: UserAnimeBatchDeleteRequest):
         await self._anilist_list_component.delete_user_list_entries(anilist_ids=body.anilist_ids)

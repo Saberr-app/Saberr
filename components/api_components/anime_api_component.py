@@ -242,6 +242,7 @@ class AnimeAPIComponent(BaseComponent):
             ],
         )
 
+    @api_component
     async def get_anime_titles(self, anilist_id: int, force_freshness: bool) -> AnimeTitlesResponse:
         anime = await self._anilist_component.get_anime(anilist_anime_id=anilist_id, force_refresh=force_freshness)
         if not anime:
