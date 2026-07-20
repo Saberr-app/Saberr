@@ -1,3 +1,4 @@
+import asyncio
 # noinspection PyPackageRequirements
 import contextvars
 import inspect
@@ -36,7 +37,7 @@ async def session_context():
             yield session
         finally:
             _session_ctx.reset(token)
-            await session.close()
+            await asyncio.shield(session.close())
 
 
 def get_session() -> AsyncSession:
