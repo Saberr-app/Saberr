@@ -2,7 +2,7 @@ from enum import Enum
 
 from pydantic import BaseModel
 
-from api.schemas import NonEmptyString
+from api.schemas import NonEmptyString, bounded_list
 from constants import SortDirection, AnilistAnimeUserStatus, AnilistAnimeSeason, AnilistAnimeStatus, AnilistAnimeFormat
 from api.schemas.anime_schemas import AnimeItem, AnimeItemBase
 
@@ -82,7 +82,7 @@ class UserAnimeBatchUpdateRequestData(BaseModel):
 
 
 class UserAnimeBatchUpdateRequest(BaseModel):
-    anilist_ids: list[int]
+    anilist_ids: bounded_list(int, min_len=1, max_len=25)
     data: UserAnimeBatchUpdateRequestData
 
 
@@ -91,4 +91,4 @@ class UserAnimeBatchUpdateResponse(BaseModel):
 
 
 class UserAnimeBatchDeleteRequest(BaseModel):
-    anilist_ids: list[int]
+    anilist_ids: bounded_list(int, min_len=1, max_len=50)

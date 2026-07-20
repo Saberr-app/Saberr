@@ -32,6 +32,11 @@ def digit_str(*, max_len: int = 255) -> type[str]:
     return Annotated[str, Field(pattern=r"^\d+$", max_length=max_len)]
 
 
+def bounded_list(item_type: type[T], *, min_len: int | None = None, max_len: int | None = None) -> type[list]:
+    # noinspection PyTypeHints
+    return Annotated[list[item_type], Field(min_length=min_len, max_length=max_len)]
+
+
 def data_response(data: dict) -> DataEnvelope[dict]:
     return DataEnvelope(data=data)
 
