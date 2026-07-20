@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from common.exceptions import AnilistNotFoundException
+from common.exceptions import NotFoundException
 from constants import MetadataSource
 
 _GET_ANIME = "components.service_components.anilist_component.AnilistComponent.get_anime"
@@ -33,7 +33,7 @@ class Case:
 
 CASES = [
     Case(id="missing anime raises not found",
-         anime=None, expected_exception=AnilistNotFoundException),
+         anime=None, expected_exception=NotFoundException),
     # all three anilist titles present, no tvdb mapping
     Case(id="all anilist titles, no tvdb mapping",
          anime=anime(), tvdb_series_id=None,

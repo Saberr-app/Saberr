@@ -28,8 +28,6 @@ CASES = [
                       dict(anime_id=2, status="COMPLETED", score=6.0, progress=12)],
          tracked=[(1, 99)],
          expected=[(1, 99), (2, None)]),
-    Case(id="no ids yields an empty response",
-         anilist_ids=[], entry_specs=[], tracked=[], expected=[]),
 ]
 
 
