@@ -3,7 +3,7 @@ changelog:
     labels:
       - ignore-for-release
   categories:
-    - title: Features
+    - title: Features and enhancements
       labels: [feature, enhancement]
     - title: Bug Fixes
       labels: [bug, fix]

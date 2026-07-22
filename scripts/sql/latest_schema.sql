@@ -337,7 +337,7 @@ CREATE TABLE IF NOT EXISTS saberr_metadata
 ) COLLATE = utf8mb4_general_ci;
 INSERT IGNORE INTO saberr_metadata (name, code, data)
 VALUES ('DB Schema metadata', 'db_schema_metadata', '{
-    "version": "0.11.4"
+    "version": "0.11.5"
 }');
 
 
@@ -360,7 +360,7 @@ CREATE TABLE IF NOT EXISTS cached_asset
 INSERT IGNORE INTO cached_asset (asset_filename, asset_type, remote, remote_type, expires_at, deletable)
 VALUES ('anime-relations.txt',
         'relations',
-        'https://raw.githubusercontent.com/erengy/anime-relations/refs/heads/master/anime-relations.txt',
+        'https://raw.githubusercontent.com/Rapptz/anime-relations/refs/heads/master/anime-relations.txt',
         'URL',
         CURRENT_TIMESTAMP,
         0),
