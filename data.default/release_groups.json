@@ -161,7 +161,7 @@
             },
             "regex": [
                 {
-                    "pattern": "^.+?\\s+S(?P<season_number>\\d{1,4})E(?P<episode_number>\\d{1,4})(?:v(?P<version_number>\\d+))?[\\s.]+.*?(?:\\s(?P<repack_indicator>REPACK))?\\s*(?:(?P<resolution>\\d{3,4}p)[\\s.]+)?(?:(?!\\d{3,4}p[\\s.])(?P<source>[A-Za-z0-9]+)[\\s.]+)?(?:WEB-DL|WEBRip|BluRay|BDRip|DVDRip)[\\s.]+.*?(?P<encoding>H[. ]?26[45]|x26[45]|AV1|HEVC|AVC)(?:\\s+[A-Za-z0-9.]+)?-(?P<release_group>VARYG)\\s+\\((?!(?i:Batch|(?:[A-Za-z]+[- ])?(?:Subs?|Audios?|Dub))[,)])(?P<title>.+?)(?:,\\s*(?i:Batch|(?:[A-Za-z]+[- ])?(?:Subs?|Audios?|Dub)))*\\)\\s*$",
+                    "pattern": "^.+?\\s+S(?P<season_number>\\d{1,4})E(?P<episode_number>\\d{1,4})(?:v(?P<version_number>\\d+))?[\\s.]+.*?(?:(?P<repack_indicator>REPACK)[\\s.]+)?\\s*(?:(?P<resolution>\\d{3,4}p)[\\s.]+)?(?:(?!\\d{3,4}p[\\s.])(?P<source>[A-Za-z0-9]+)[\\s.]+)?(?:WEB-DL|WEBRip|BluRay|BDRip|DVDRip)[\\s.]+.*?(?P<encoding>H[. ]?26[45]|x26[45]|AV1|HEVC|AVC)(?:\\s+[A-Za-z0-9.]+)?-(?P<release_group>VARYG)\\s+\\((?!(?i:Batch|(?:[A-Za-z]+[- ])?(?:Subs?|Audios?|Dub))[,)])(?P<title>.+?)(?:,\\s*(?i:Batch|(?:[A-Za-z]+[- ])?(?:Subs?|Audios?|Dub)))*\\)\\s*$",
                     "required_pattern_groups": [
                         "release_group",
                         "title",
@@ -170,7 +170,7 @@
                     ]
                 },
                 {
-                    "pattern": "^(?P<title>.+?)\\s+S(?P<season_number>\\d{1,4})E(?P<episode_number>\\d{1,4})(?:v(?P<version_number>\\d+))?[\\s.]+.*?(?:\\s(?P<repack_indicator>REPACK))?\\s*(?:(?P<resolution>\\d{3,4}p)[\\s.]+)?(?:(?!\\d{3,4}p[\\s.])(?P<source>[A-Za-z0-9]+)[\\s.]+)?(?:WEB-DL|WEBRip|BluRay|BDRip|DVDRip)[\\s.]+.*?(?P<encoding>H[. ]?26[45]|x26[45]|AV1|HEVC|AVC)(?:\\s+[A-Za-z0-9.]+)?-(?P<release_group>VARYG)",
+                    "pattern": "^(?P<title>.+?)\\s+S(?P<season_number>\\d{1,4})E(?P<episode_number>\\d{1,4})(?:v(?P<version_number>\\d+))?[\\s.]+.*?(?:(?P<repack_indicator>REPACK)[\\s.]+)?\\s*(?:(?P<resolution>\\d{3,4}p)[\\s.]+)?(?:(?!\\d{3,4}p[\\s.])(?P<source>[A-Za-z0-9]+)[\\s.]+)?(?:WEB-DL|WEBRip|BluRay|BDRip|DVDRip)[\\s.]+.*?(?P<encoding>H[. ]?26[45]|x26[45]|AV1|HEVC|AVC)(?:\\s+[A-Za-z0-9.]+)?-(?P<release_group>VARYG)",
                     "required_pattern_groups": [
                         "release_group",
                         "title",
@@ -192,7 +192,7 @@
             },
             "regex": [
                 {
-                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\](?=.*?(?P<censorship_status>(?i:Uncensored)))?\\s+.+?\\s+S(?P<season_number>\\d{1,4})E(?P<episode_number>\\d{1,4})(?:v(?P<version_number>\\d+))?[\\s.]+.*?(?:\\s(?P<repack_indicator>REPACK))?\\s*(?:(?P<resolution>\\d{3,4}p)[\\s.]+)?(?:(?i:UNCENSORED)[\\s.]+)?(?:(?!\\d{3,4}p[\\s.])(?P<source>[A-Za-z0-9]+)[\\s.]+)?(?:WEB-DL|WEBRip|BluRay|BDRip|DVDRip)[\\s.]+.*?(?P<encoding>H[. ]?26[45]|x26[45]|AV1|HEVC|AVC)\\s+\\((?!(?i:Uncensored|(?:[A-Za-z]+[- ])?(?:Subs?|Audios?|Dub))[,)])(?P<title>.+?)(?:,\\s*(?i:Uncensored|(?:[A-Za-z]+[- ])?(?:Subs?|Audios?|Dub)))*\\)(?:\\s*\\[[^\\]]*\\])*\\s*$",
+                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\](?=.*?(?P<censorship_status>(?i:Uncensored)))?\\s+.+?\\s+S(?P<season_number>\\d{1,4})E(?P<episode_number>\\d{1,4})(?:v(?P<version_number>\\d+))?[\\s.]+.*?(?:(?P<repack_indicator>REPACK)[\\s.]+)?\\s*(?:(?P<resolution>\\d{3,4}p)[\\s.]+)?(?:(?i:UNCENSORED)[\\s.]+)?(?:(?!\\d{3,4}p[\\s.])(?P<source>[A-Za-z0-9]+)[\\s.]+)?(?:WEB-DL|WEBRip|BluRay|BDRip|DVDRip)[\\s.]+.*?(?P<encoding>H[. ]?26[45]|x26[45]|AV1|HEVC|AVC)\\s+\\((?!(?i:Uncensored|(?:[A-Za-z]+[- ])?(?:Subs?|Audios?|Dub))[,)])(?P<title>.+?)(?:,\\s*(?i:Uncensored|(?:[A-Za-z]+[- ])?(?:Subs?|Audios?|Dub)))*\\)(?:\\s*\\[[^\\]]*\\])*\\s*$",
                     "required_pattern_groups": [
                         "release_group",
                         "title",
@@ -201,11 +201,27 @@
                     ]
                 },
                 {
-                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\](?=.*?(?P<censorship_status>(?i:Uncensored)))?\\s+(?P<title>.+?)\\s+S(?P<season_number>\\d{1,4})E(?P<episode_number>\\d{1,4})(?:v(?P<version_number>\\d+))?[\\s.]+.*?(?:\\s(?P<repack_indicator>REPACK))?\\s*(?:(?P<resolution>\\d{3,4}p)[\\s.]+)?(?:(?!\\d{3,4}p[\\s.])(?P<source>[A-Za-z0-9]+)[\\s.]+)?(?:WEB-DL|WEBRip|BluRay|BDRip|DVDRip)[\\s.]+.*?(?P<encoding>H[. ]?26[45]|x26[45]|AV1|HEVC|AVC)",
+                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\](?=.*?(?P<censorship_status>(?i:Uncensored)))?\\s+(?P<title>.+?)\\s+S(?P<season_number>\\d{1,4})E(?P<episode_number>\\d{1,4})(?:v(?P<version_number>\\d+))?[\\s.]+.*?(?:(?P<repack_indicator>REPACK)[\\s.]+)?\\s*(?:(?P<resolution>\\d{3,4}p)[\\s.]+)?(?:(?!\\d{3,4}p[\\s.])(?P<source>[A-Za-z0-9]+)[\\s.]+)?(?:WEB-DL|WEBRip|BluRay|BDRip|DVDRip)[\\s.]+.*?(?P<encoding>H[. ]?26[45]|x26[45]|AV1|HEVC|AVC)",
                     "required_pattern_groups": [
                         "release_group",
                         "title",
                         "season_number",
+                        "episode_number"
+                    ]
+                },
+                {
+                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\](?=.*?(?P<censorship_status>(?i:Uncensored)))?\\s+.+?\\s+EP(?P<episode_number>\\d{1,5})(?:v(?P<version_number>\\d+))?[\\s.]+.*?(?:(?P<repack_indicator>REPACK)[\\s.]+)?\\s*(?:(?P<resolution>\\d{3,4}p)[\\s.]+)?(?:(?i:UNCENSORED)[\\s.]+)?(?:(?!\\d{3,4}p[\\s.])(?P<source>[A-Za-z0-9]+)[\\s.]+)?(?:WEB-DL|WEBRip|BluRay|BDRip|DVDRip)[\\s.]+.*?(?P<encoding>H[. ]?26[45]|x26[45]|AV1|HEVC|AVC)\\s+\\((?!(?i:Uncensored|(?:[A-Za-z]+[- ])?(?:Subs?|Audios?|Dub))[,)])(?P<title>.+?)(?:,\\s*(?i:Uncensored|(?:[A-Za-z]+[- ])?(?:Subs?|Audios?|Dub)))*\\)(?:\\s*\\[[^\\]]*\\])*\\s*$",
+                    "required_pattern_groups": [
+                        "release_group",
+                        "title",
+                        "episode_number"
+                    ]
+                },
+                {
+                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\](?=.*?(?P<censorship_status>(?i:Uncensored)))?\\s+(?P<title>.+?)\\s+EP(?P<episode_number>\\d{1,5})(?:v(?P<version_number>\\d+))?[\\s.]+.*?(?:(?P<repack_indicator>REPACK)[\\s.]+)?\\s*(?:(?P<resolution>\\d{3,4}p)[\\s.]+)?(?:(?i:UNCENSORED)[\\s.]+)?(?:(?!\\d{3,4}p[\\s.])(?P<source>[A-Za-z0-9]+)[\\s.]+)?(?:WEB-DL|WEBRip|BluRay|BDRip|DVDRip)[\\s.]+.*?(?P<encoding>H[. ]?26[45]|x26[45]|AV1|HEVC|AVC)",
+                    "required_pattern_groups": [
+                        "release_group",
+                        "title",
                         "episode_number"
                     ]
                 }
