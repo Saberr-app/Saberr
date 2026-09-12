@@ -23,9 +23,13 @@ RELEASE_GROUPS_JSON_SCHEMA = {
                     "submitter": {"type": "string"},
                     "unique_filter": {
                         "type": "object",
-                        "required": ["startswith"],
+                        "oneOf": [
+                            {"required": ["startswith"]},
+                            {"required": ["contains"]},
+                        ],
                         "properties": {
                             "startswith": {"type": "string"},
+                            "contains": {"type": "string"},
                         },
                         "additionalProperties": True,
                     },

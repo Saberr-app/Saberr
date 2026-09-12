@@ -122,6 +122,99 @@
             "default_language_code": "JP",
             "batch_keyword": "(Batch)",
             "episode_numbering_affinity": "CONTINUOUS_PARTS"
+        },
+        "SubsPlus+": {
+            "submitter": "SubsPlus",
+            "unique_filter": {
+                "startswith": "[SubsPlus+]"
+            },
+            "regex": [
+                {
+                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\]\\s+.+?\\s+-\\s+S(?P<season_number>\\d{1,4})E(?P<episode_number>\\d{1,4})(?:v(?P<version_number>\\d+))?\\s+\\((?P<source>[A-Za-z0-9+]+)\\s+[^)]*?(?P<resolution>\\d+p)\\s+(?P<encoding>HEVC|AVC|AV1)[^)]*\\)(?:\\s*\\[[^\\]]*\\])*(?:\\s*\\((?P<censorship_status>Uncensored)\\))?(?:\\s*\\[[^\\]]*\\])*\\s*\\|\\s*(?P<title>.+?)(?:\\s*\\([^)]*[Bb]atch\\))?\\s*$",
+                    "required_pattern_groups": [
+                        "release_group",
+                        "title",
+                        "season_number",
+                        "episode_number"
+                    ]
+                },
+                {
+                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\]\\s+(?P<title>.+?)\\s+-\\s+S(?P<season_number>\\d{1,4})E(?P<episode_number>\\d{1,4})(?:v(?P<version_number>\\d+))?\\s+\\((?P<source>[A-Za-z0-9+]+)\\s+[^)]*?(?P<resolution>\\d+p)\\s+(?P<encoding>HEVC|AVC|AV1)[^)]*\\)(?:\\s*\\[[^\\]]*\\])*(?:\\s*\\((?P<censorship_status>Uncensored)\\))?",
+                    "required_pattern_groups": [
+                        "release_group",
+                        "title",
+                        "season_number",
+                        "episode_number"
+                    ]
+                }
+            ],
+            "default_encoding": "AVC",
+            "default_resolution": "1080p",
+            "default_language_code": "JP",
+            "batch_keyword": "Batch)",
+            "episode_numbering_affinity": "TVDB"
+        },
+        "VARYG": {
+            "submitter": "varyg1001",
+            "unique_filter": {
+                "contains": "-VARYG"
+            },
+            "regex": [
+                {
+                    "pattern": "^.+?\\s+S(?P<season_number>\\d{1,4})E(?P<episode_number>\\d{1,4})(?:v(?P<version_number>\\d+))?[\\s.]+.*?(?:\\s(?P<repack_indicator>REPACK))?\\s*(?:(?P<resolution>\\d{3,4}p)[\\s.]+)?(?:(?!\\d{3,4}p[\\s.])(?P<source>[A-Za-z0-9]+)[\\s.]+)?(?:WEB-DL|WEBRip|BluRay|BDRip|DVDRip)[\\s.]+.*?(?P<encoding>H[. ]?26[45]|x26[45]|AV1|HEVC|AVC)(?:\\s+[A-Za-z0-9.]+)?-(?P<release_group>VARYG)\\s+\\((?!(?i:Batch|(?:[A-Za-z]+[- ])?(?:Subs?|Audios?|Dub))[,)])(?P<title>.+?)(?:,\\s*(?i:Batch|(?:[A-Za-z]+[- ])?(?:Subs?|Audios?|Dub)))*\\)\\s*$",
+                    "required_pattern_groups": [
+                        "release_group",
+                        "title",
+                        "season_number",
+                        "episode_number"
+                    ]
+                },
+                {
+                    "pattern": "^(?P<title>.+?)\\s+S(?P<season_number>\\d{1,4})E(?P<episode_number>\\d{1,4})(?:v(?P<version_number>\\d+))?[\\s.]+.*?(?:\\s(?P<repack_indicator>REPACK))?\\s*(?:(?P<resolution>\\d{3,4}p)[\\s.]+)?(?:(?!\\d{3,4}p[\\s.])(?P<source>[A-Za-z0-9]+)[\\s.]+)?(?:WEB-DL|WEBRip|BluRay|BDRip|DVDRip)[\\s.]+.*?(?P<encoding>H[. ]?26[45]|x26[45]|AV1|HEVC|AVC)(?:\\s+[A-Za-z0-9.]+)?-(?P<release_group>VARYG)",
+                    "required_pattern_groups": [
+                        "release_group",
+                        "title",
+                        "season_number",
+                        "episode_number"
+                    ]
+                }
+            ],
+            "default_encoding": "AVC",
+            "default_resolution": "1080p",
+            "default_language_code": "JP",
+            "batch_keyword": "Batch)",
+            "episode_numbering_affinity": "TVDB"
+        },
+        "ToonsHub": {
+            "submitter": "ToonsHub",
+            "unique_filter": {
+                "startswith": "[ToonsHub]"
+            },
+            "regex": [
+                {
+                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\](?=.*?(?P<censorship_status>(?i:Uncensored)))?\\s+.+?\\s+S(?P<season_number>\\d{1,4})E(?P<episode_number>\\d{1,4})(?:v(?P<version_number>\\d+))?[\\s.]+.*?(?:\\s(?P<repack_indicator>REPACK))?\\s*(?:(?P<resolution>\\d{3,4}p)[\\s.]+)?(?:(?i:UNCENSORED)[\\s.]+)?(?:(?!\\d{3,4}p[\\s.])(?P<source>[A-Za-z0-9]+)[\\s.]+)?(?:WEB-DL|WEBRip|BluRay|BDRip|DVDRip)[\\s.]+.*?(?P<encoding>H[. ]?26[45]|x26[45]|AV1|HEVC|AVC)\\s+\\((?!(?i:Uncensored|(?:[A-Za-z]+[- ])?(?:Subs?|Audios?|Dub))[,)])(?P<title>.+?)(?:,\\s*(?i:Uncensored|(?:[A-Za-z]+[- ])?(?:Subs?|Audios?|Dub)))*\\)(?:\\s*\\[[^\\]]*\\])*\\s*$",
+                    "required_pattern_groups": [
+                        "release_group",
+                        "title",
+                        "season_number",
+                        "episode_number"
+                    ]
+                },
+                {
+                    "pattern": "^\\[(?P<release_group>[^\\]]+)\\](?=.*?(?P<censorship_status>(?i:Uncensored)))?\\s+(?P<title>.+?)\\s+S(?P<season_number>\\d{1,4})E(?P<episode_number>\\d{1,4})(?:v(?P<version_number>\\d+))?[\\s.]+.*?(?:\\s(?P<repack_indicator>REPACK))?\\s*(?:(?P<resolution>\\d{3,4}p)[\\s.]+)?(?:(?!\\d{3,4}p[\\s.])(?P<source>[A-Za-z0-9]+)[\\s.]+)?(?:WEB-DL|WEBRip|BluRay|BDRip|DVDRip)[\\s.]+.*?(?P<encoding>H[. ]?26[45]|x26[45]|AV1|HEVC|AVC)",
+                    "required_pattern_groups": [
+                        "release_group",
+                        "title",
+                        "season_number",
+                        "episode_number"
+                    ]
+                }
+            ],
+            "default_encoding": "AVC",
+            "default_resolution": "1080p",
+            "default_language_code": "JP",
+            "batch_keyword": "[BATCH]",
+            "episode_numbering_affinity": "TVDB"
         }
     }
 }
