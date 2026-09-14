@@ -3,12 +3,11 @@ from dataclasses import dataclass, field
 import pytest
 
 from config import config
-from tests.support.builders import make_entry
+from tests.support.builders import make_entry, make_user_list
 from tests.support.mocks import patch_async_returns
 
 _EXTRAS = "components.service_components.anilist_component.AnilistComponent.get_anime_extras"
-_LIST_ENTRY = ("components.service_components.anilist_list_component"
-               ".AnilistListComponent.get_user_anime_list_entry")
+_USER_LIST = "components.service_components.anilist_list_component.AnilistListComponent.get_user_anime_list"
 
 
 def _payload():
@@ -27,7 +26,7 @@ def _payload():
              "relationType": "SEQUEL"},
             {"node": {"id": 101, "coverImage": {"large": "m.png"},
                       "title": {"english": "Src EN", "romaji": "Src RO", "native": "Src NA"}, "format": "MANGA"},
-             "relationType": "ADAPTATION"},  # not an anime format
+             "relationType": "ADAPTATION"},
         ]},
         "staff": {"edges": [
             {"node": {"siteUrl": "https://s/1", "image": {"large": "s1.png"}, "name": {"full": "Director"}},
@@ -41,6 +40,7 @@ class Case:
     id: str
     extras: dict = field(default_factory=_payload)
     authenticated: bool = False
+    user_list_statuses: dict = field(default_factory=dict)   # anilist id -> status
     expected_character_names: list | None = None
     expected_voice_actor_names: list | None = None       # per character, None where absent
     expected_relation_ids: list | None = None
@@ -54,8 +54,15 @@ CASES = [
          expected_character_names=["Hero", "Sidekick"], expected_voice_actor_names=["Seiyuu", None],
          expected_relation_ids=[100, 101], expected_relation_formats=["TV", "MANGA"],
          expected_relation_list_statuses=[None, None], expected_staff_names=["Director"]),
-    Case(id="relation list status set only for anime formats when authenticated",
-         authenticated=True, expected_relation_list_statuses=["CURRENT", None]),
+    Case(id="each relation carries its own list status",
+         authenticated=True, user_list_statuses={100: "CURRENT", 101: "PLANNING"},
+         expected_relation_list_statuses=["CURRENT", "PLANNING"]),
+    Case(id="relations absent from the user list have no status",
+         authenticated=True, user_list_statuses={101: "DROPPED"},
+         expected_relation_list_statuses=[None, "DROPPED"]),
+    Case(id="unrelated user list entries are ignored",
+         authenticated=True, user_list_statuses={999: "COMPLETED"},
+         expected_relation_list_statuses=[None, None]),
     Case(id="empty extras yield empty lists",
          extras={}, expected_character_names=[], expected_relation_ids=[], expected_staff_names=[]),
 ]
@@ -66,7 +73,8 @@ async def test_get_anime_extras(case: Case, make_component, mocker):
     targets = {_EXTRAS: case.extras}
     if case.authenticated:
         config.user_settings.anilist_user_token = "token"
-        targets[_LIST_ENTRY] = make_entry(1, status="CURRENT")
+        targets[_USER_LIST] = make_user_list([make_entry(anime_id, status=status)
+                                              for anime_id, status in case.user_list_statuses.items()])
     patch_async_returns(mocker, targets)
 
     result = await make_component().get_anime_extras(anilist_id=1, force_freshness=False)
