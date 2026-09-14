@@ -458,6 +458,12 @@ INSERT IGNORE INTO settings (code, data)
 VALUES ('RSS_CATEGORY',
         'English Translated');
 INSERT IGNORE INTO settings (code, data)
+VALUES ('RSS_PROXY_CONFIG',
+        NULL); -- str when filled
+INSERT IGNORE INTO settings (code, data)
+VALUES ('RSS_PROXY_TORRENT_FILES_ENABLED',
+        'true');
+INSERT IGNORE INTO settings (code, data)
 VALUES ('SET_DOWNLOAD_AS_FAILED_AFTER_MINUTES',
         '180');
 INSERT IGNORE INTO settings (code, data)

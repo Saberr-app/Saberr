@@ -1,4 +1,5 @@
 from common.exceptions import ExternalServiceException
+from dto.proxy_config import ProxyConfig
 from services import ThirdPartyService, StandardResponse
 
 
@@ -7,9 +8,9 @@ class StaticFilesService(ThirdPartyService):
     def __init__(self):
         super().__init__()
 
-    async def get_arbitrary_file(self, url: str) -> bytes:
+    async def get_arbitrary_file(self, url: str, proxy_config: ProxyConfig | None = None) -> bytes:
         self.logger.debug(f"Fetching static file: {url}")
-        response = await self._request("GET", url)
+        response = await self._request("GET", url, proxy_config=proxy_config)
         response = self._handle_response(response)
         return response.content
 

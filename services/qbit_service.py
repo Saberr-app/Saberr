@@ -1,6 +1,8 @@
 from typing import Iterable
 from uuid import uuid4
 
+from aiohttp import FormData
+
 from common.exceptions import ExternalServiceException
 from config import config
 from dto.http_response import StandardResponse
@@ -71,8 +73,9 @@ class QBitService(ThirdPartyService):
                            save_path: str | None,
                            category: str | None = None,
                            tags: list[str] | None = None,
+                           torrent_files: list[tuple[str, bytes]] | None = None,
                            create_root_folder: bool = True) -> str:
-        self.logger.debug(f"Adding torrents: {torrent_or_magnet_links}")
+        self.logger.debug(f"Adding torrents: {torrent_or_magnet_links or [name for name, _ in torrent_files]}")
         url = self.base_url + self.Endpoint.TORRENTS_ADD
         data = {
             'urls': '\n'.join(torrent_or_magnet_links),
@@ -84,6 +87,14 @@ class QBitService(ThirdPartyService):
                 'savepath': save_path,
                 'root_folder': "true" if create_root_folder else "false"
             }
+        if torrent_files:
+            form_data = FormData()
+            for field, value in data.items():
+                form_data.add_field(field, value)
+            for file_name, file_content in torrent_files:
+                form_data.add_field('torrents', file_content, filename=file_name,
+                                    content_type='application/x-bittorrent')
+            data = form_data
         response = await self._request("POST", url, data=data)
         return self._process_response(response).text
 
