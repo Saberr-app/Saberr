@@ -338,7 +338,9 @@ class WorkerName(Enum):  # sync with FE on enum name change
 
     POLL_DOWNSTREAM_STATUS = "Check downstream services status"
 
-    PROCESS_NOTIFICATIONS = "Process notifications"
+    PRODUCE_DOWNLOAD_ERROR_NOTIFICATIONS = "Produce download error notifications"
+    RETRACT_STALE_NOTIFICATIONS = "Retract stale notifications"
+    PRODUCE_MISSING_EPISODES_REPORT = "Produce missing episodes report"
 
     CONSUME_RSS_FEEDS = "Consume RSS feed"
 

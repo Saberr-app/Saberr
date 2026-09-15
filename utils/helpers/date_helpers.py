@@ -31,3 +31,11 @@ def seconds_to_midnight() -> int:
     now = datetime.now(UTC)
     midnight = datetime(now.year, now.month, now.day, tzinfo=UTC) + timedelta(days=1)
     return int((midnight - now).total_seconds())
+
+
+def seconds_to(hour: int, minute: int = 0, local: bool = True) -> int:
+    now = datetime.now().astimezone() if local else datetime.now(UTC)
+    target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    if target <= now:
+        target += timedelta(days=1)
+    return int((target - now).total_seconds())
