@@ -13,6 +13,7 @@ from config import config
 from repositories.cache_repositories.anilist_anime_repo import AnilistAnimeRepo
 from repositories.cache_repositories.anilist_anime_airing_schedule_repo import AnilistAnimeAiringScheduleRepo
 from repositories.cache_repositories.tvdb_series_repo import TVDBSeriesRepo
+from repositories.torrent_repositories.torrent_repo import TorrentRepo
 from workers import BaseWorkerClass
 
 
@@ -101,6 +102,8 @@ class CleanupWorkers(BaseWorkerClass):
         await TVDBSeriesRepo(get_session()). \
             delete_orphaned_tvdb_series_records_updated_older_than(datetime.now(UTC) - timedelta(days=90))
         await ExternalImageComponent().cleanup_expired_images()
+        await TorrentRepo(get_session()). \
+            delete_torrents_of_untracked_anime_older_than(datetime.now(UTC) - timedelta(days=90))
 
     @periodic_worker(frequency=60*10, initial_delay=60)
     @require_db_session
