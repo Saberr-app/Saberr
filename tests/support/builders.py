@@ -47,6 +47,7 @@ _DEFAULT_USER_SETTINGS = dict(
     discord_notify_on_download_processed=True,
     discord_notify_on_upgrade_download_processed=False,
     discord_notify_on_download_failed=True,
+    discord_send_daily_missing_report=True,
     discord_user_id=None,
     timezone="UTC",
     anilist_preferred_title_language=AnilistTitleLanguage.ROMAJI,

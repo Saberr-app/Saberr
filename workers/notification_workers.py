@@ -3,6 +3,8 @@ from datetime import datetime, UTC, timedelta
 from common.db import get_session
 from common.decorators import periodic_worker, require_db_session
 from components.notification_component import NotificationComponent
+from components.operational_components.episode_component import EpisodeComponent
+from config import config
 from constants import TorrentDownloadStatus, NotificationCode, NotificationLevel, DOWNLOAD_PROCESSING_RETRY_LIMIT
 from repositories.notification_repo import NotificationRepo
 from repositories.torrent_repositories.torrent_download_repo import TorrentDownloadRepo
@@ -55,7 +57,10 @@ class NotificationWorkers(BaseWorkerClass):
     async def retract_stale_notifications(self):
         await self.notification_component.evaluate_notifications_staleness()
 
-    @periodic_worker(frequency=60*60*24, initial_delay=seconds_to(hour=21, local=True))
+    @periodic_worker(frequency=60*60*24, initial_delay=seconds_to(hour=21, local=True), listed=False)
     @require_db_session
     async def produce_missing_episodes_report(self):
-        pass  # todo
+        if not config.user_settings.notifications_discord_webhook_url \
+                or not config.user_settings.discord_send_daily_missing_report:
+            return
+        await EpisodeComponent().send_tracked_anime_episode_coverage_report()

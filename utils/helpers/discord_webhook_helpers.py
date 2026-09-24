@@ -1,6 +1,8 @@
-from datetime import datetime
+from datetime import datetime, UTC
 
 from config import config
+from dto.anime_episode import EpisodeCoverageStats
+from dto.orm_models import TrackedAnime
 from utils.helpers.text_helpers import get_human_readable_time, get_human_readable_size, shorten_text
 from constants import ExternalLink, NotificationLevel
 
@@ -145,3 +147,44 @@ def construct_discord_webhook_payload_for_notification(notification_id: int,
             "timestamp": time.isoformat(),
         }],
     } | ({"content": content} if content else {})
+
+
+def construct_discord_webhook_payload_for_missing_episodes_report(
+        tracked_anime_coverage_stats_map: dict[TrackedAnime, EpisodeCoverageStats],
+) -> dict:
+    fields = []
+    for tracked_anime, episode_coverage_stats in tracked_anime_coverage_stats_map.items():
+        if not episode_coverage_stats.has_unprocessed():
+            continue
+        if len(fields) == 24 and len(tracked_anime_coverage_stats_map) > 25:
+            fields.append({
+                "name": f"... and {len(tracked_anime_coverage_stats_map) - 24} more",
+                "value": "Go to your Tracked Anime page for an overview of all tracked anime and coverage status.",
+                "inline": False
+            })
+            break
+        missing_details = ""
+        if episode_coverage_stats.missing_episode_count:
+            missing_details += f"**{episode_coverage_stats.missing_episode_count}** missing episodes\n"
+        if episode_coverage_stats.downloading_episode_count:
+            missing_details += f"**{episode_coverage_stats.downloading_episode_count}** downloading episodes\n"
+        if episode_coverage_stats.failed_episode_count:
+            missing_details += f"**{episode_coverage_stats.failed_episode_count}** failed episodes\n"
+        if base_url := config.user_settings.published_url:
+            saberr_url = base_url.rstrip('/') + f"/tracked/{tracked_anime.id}"
+            missing_details += f"[Go to ›]({saberr_url})\n"
+        fields.append({
+            "name": shorten_text(tracked_anime.preferred_title, 250),
+            "value": missing_details,
+            "inline": False
+        })
+    return {
+        "embeds": [{
+            "author": {"name": f"Saberr"},
+            "title": "Missing episodes report",
+            "description": f"The following episodes have not been downloaded and processed by Saberr yet.",
+            "color": 0xD65F45,
+            "fields": fields,
+            "timestamp": datetime.now(UTC).isoformat(),
+        }],
+    }
