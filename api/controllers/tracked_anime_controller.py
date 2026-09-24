@@ -11,7 +11,7 @@ from api.schemas.tracked_anime_schemas import (TrackedAnimeCreateRequest, Tracke
 
 
 @api_v1_router.post("/tracked-anime", status_code=204,
-                    responses=error_responses(422, 502))
+                    responses=error_responses(422, 424))
 async def create_tracked_anime(body: TrackedAnimeCreateRequest):
     await TrackedAnimeAPIComponent().create_tracked_anime(body=body)
 

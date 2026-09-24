@@ -10,33 +10,33 @@ from api.schemas.anime_schemas import (AnimeListRequest, AnimeListResponse, Anil
 
 
 @api_v1_router.get("/anime", response_model=DataEnvelope[AnimeListResponse],
-                   responses=error_responses(502, 422))
+                   responses=error_responses(424, 422))
 async def get_list_of_anime(params: Annotated[AnimeListRequest, Query()]):
     return DataEnvelope(data=await AnimeAPIComponent().get_list_of_anime(params=params))
 
 
 @api_v1_router.get("/anime/anilist-metadata", response_model=DataEnvelope[AnilistMetadataResponse],
-                   responses=error_responses(502))
+                   responses=error_responses(424))
 async def get_anilist_metadata():
     return DataEnvelope(data=await AnimeAPIComponent().get_anilist_metadata())
 
 
 @api_v1_router.get("/anime/{anilist_id}", response_model=DataEnvelope[AnimeItemWithUserEntry],
-                   responses=error_responses(502, 422, 404))
+                   responses=error_responses(424, 422, 404))
 async def get_anime(anilist_id: int, force_freshness: bool = False):
     return DataEnvelope(data=await AnimeAPIComponent().get_anime(anilist_id=anilist_id,
                                                                  force_freshness=force_freshness))
 
 
 @api_v1_router.get("/anime/{anilist_id}/extras", response_model=DataEnvelope[AnimeExtras],
-                   responses=error_responses(502, 404))
+                   responses=error_responses(424, 404))
 async def get_anime_extras(anilist_id: int, force_freshness: bool = False):
     return DataEnvelope(data=await AnimeAPIComponent().get_anime_extras(anilist_id=anilist_id,
                                                                         force_freshness=force_freshness))
 
 
 @api_v1_router.get("/anime/{anilist_id}/titles", response_model=DataEnvelope[AnimeTitlesResponse],
-                   responses=error_responses(502, 404))
+                   responses=error_responses(424, 404))
 async def get_anime_titles(anilist_id: int, force_freshness: bool = False):
     return DataEnvelope(data=await AnimeAPIComponent().get_anime_titles(anilist_id=anilist_id,
                                                                         force_freshness=force_freshness))
