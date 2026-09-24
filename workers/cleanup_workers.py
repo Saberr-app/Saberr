@@ -68,13 +68,18 @@ class CleanupWorkers(BaseWorkerClass):
     @periodic_worker(frequency=60*60*1, initial_delay=60)
     @require_db_session
     async def refresh_stale_db_data(self):
+
+        @require_db_session
+        async def refresh_anime_records(anilist_anime_ids_: list[int]):
+            await AnilistComponent().fetch_anime_records(
+                anilist_anime_ids=anilist_anime_ids_,
+            )
+
         anime_data_older_than_3_days = await AnilistAnimeRepo(get_session()).\
             get_updated_older_than(datetime.now(UTC) - timedelta(days=3))
         anilist_anime_ids = [anime.anilist_id for anime in anime_data_older_than_3_days]
         for i in range(0, len(anilist_anime_ids), 50):
-            await AnilistComponent().fetch_anime_records(
-                anilist_anime_ids=anilist_anime_ids[i:i+50],
-            )
+            await refresh_anime_records(anilist_anime_ids_=anilist_anime_ids[i:i+50])
             if i + 50 < len(anilist_anime_ids):
                 await asyncio.sleep(10)  # be very patient
 
