@@ -52,7 +52,7 @@ def fuzzy_match_video_source(source: str) -> VideoSource | None:
         VideoSource.AMAZON: ["amazon", "prime", "amzn"],
         VideoSource.DISNEY_PLUS: ["disney+", "disney plus", "disney", "dplus", "dsnp"],
         VideoSource.ADN: ["adn", "anime digital network"],
-        VideoSource.HIDIVE: ["hidive", "hdv"],
+        VideoSource.HIDIVE: ["hidive", "hdv", "hidi"],
         VideoSource.HULU: ["hulu"]
     }
     source_lower = source.lower()

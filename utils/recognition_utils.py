@@ -10,9 +10,11 @@ def get_matched_release_group_in_torrent_title(torrent_title: str,
         if release_group.unique_filter.filter_type == ReleaseGroupFilterType.STARTS_WITH:
             if torrent_title.lower().startswith(release_group.unique_filter.value.lower()):
                 matched_release_group = release_group
+                break
         elif release_group.unique_filter.filter_type == ReleaseGroupFilterType.CONTAINS:
             if release_group.unique_filter.value.lower() in torrent_title.lower():
                 matched_release_group = release_group
+                break
         else:
             raise ValueError(f"Invalid filter type: {release_group.unique_filter.filter_type}")
     return matched_release_group
