@@ -13,6 +13,7 @@ from config import config
 from repositories.cache_repositories.anilist_anime_repo import AnilistAnimeRepo
 from repositories.cache_repositories.anilist_anime_airing_schedule_repo import AnilistAnimeAiringScheduleRepo
 from repositories.cache_repositories.tvdb_series_repo import TVDBSeriesRepo
+from repositories.torrent_repositories.torrent_repo import TorrentRepo
 from workers import BaseWorkerClass
 
 
@@ -68,13 +69,18 @@ class CleanupWorkers(BaseWorkerClass):
     @periodic_worker(frequency=60*60*1, initial_delay=60)
     @require_db_session
     async def refresh_stale_db_data(self):
+
+        @require_db_session
+        async def refresh_anime_records(anilist_anime_ids_: list[int]):
+            await AnilistComponent().fetch_anime_records(
+                anilist_anime_ids=anilist_anime_ids_,
+            )
+
         anime_data_older_than_3_days = await AnilistAnimeRepo(get_session()).\
             get_updated_older_than(datetime.now(UTC) - timedelta(days=3))
         anilist_anime_ids = [anime.anilist_id for anime in anime_data_older_than_3_days]
         for i in range(0, len(anilist_anime_ids), 50):
-            await AnilistComponent().fetch_anime_records(
-                anilist_anime_ids=anilist_anime_ids[i:i+50],
-            )
+            await refresh_anime_records(anilist_anime_ids_=anilist_anime_ids[i:i+50])
             if i + 50 < len(anilist_anime_ids):
                 await asyncio.sleep(10)  # be very patient
 
@@ -96,6 +102,8 @@ class CleanupWorkers(BaseWorkerClass):
         await TVDBSeriesRepo(get_session()). \
             delete_orphaned_tvdb_series_records_updated_older_than(datetime.now(UTC) - timedelta(days=90))
         await ExternalImageComponent().cleanup_expired_images()
+        await TorrentRepo(get_session()). \
+            delete_torrents_of_untracked_anime_older_than(datetime.now(UTC) - timedelta(days=90))
 
     @periodic_worker(frequency=60*10, initial_delay=60)
     @require_db_session

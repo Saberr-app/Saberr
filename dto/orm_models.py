@@ -9,6 +9,7 @@ from constants import (SettingsCode, TrackedAnimeStatus, TVDBSeasonType, Torrent
                        NotificationLevel, NotificationStatus, NotificationCode, AuditLogCode, AuditLogCategory,
                        Encoding, Resolution, VideoSource, CachedAssetRemoteType, Enum, ReleaseCriteriaProperty,
                        AnilistTitleLanguage, CachedAssetType, MappingOverrideMode)
+from dto import DBSettingDTO
 
 
 class AwareDateTime(TypeDecorator):
@@ -37,6 +38,8 @@ class Dynamic(TypeDecorator):
             value = json.dumps(value)
         elif isinstance(value, Enum):
             value = value.value
+        elif isinstance(value, DBSettingDTO):
+            value = value.to_db_setting()
         return value
 
     def process_result_value(self, value, dialect):

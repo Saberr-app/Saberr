@@ -8,7 +8,7 @@ import aiofiles
 from common.context_helpers import thread_out
 from common.db import get_session
 from common.decorators import require_db_session, suppress_and_log
-from common.exceptions import PreprocessingFailedException, TVDBIncompleteDataException
+from common.exceptions import PreprocessingFailedException, TVDBIncompleteDataException, ExternalServiceException
 from components.operational_components import BaseOperationalComponent
 from components.service_components.anilist_component import AnilistComponent
 from components.service_components.qbit_component import QBitComponent
@@ -257,16 +257,26 @@ class ProcessingComponent(BaseOperationalComponent):
                                           is_upgrade: bool):
         torrent_download = await TorrentRepo(get_session()).get_torrents_by_hashes(magnet_hashes=[magnet_hash],
                                                                                    load_relations=True)
+        try:
+            tvdb_series = await TVDBComponent().get_series(
+                series_id=torrent_download[0].tracked_anime_episode.tvdb_series_id,
+                minimum_freshness=timedelta(weeks=2)
+            ) if torrent_download[0].tracked_anime_episode.tvdb_series_id else None
+            tvdb_series_title = (tvdb_series.english_title or tvdb_series.title) if tvdb_series else None
+        except ExternalServiceException:
+            tvdb_series_title = None
         for torrent in torrent_download:
             await self._send_discord_notification(torrent=torrent,
                                                   anilist_anime=anilist_anime,
                                                   tvdb_episodes=tvdb_episodes,
+                                                  tvdb_series_title=tvdb_series_title,
                                                   is_upgrade=is_upgrade)
 
     async def _send_discord_notification(self,
                                          torrent: Torrent,
                                          anilist_anime: AnilistAnime,
                                          tvdb_episodes: list[TVDBSeriesEpisode],
+                                         tvdb_series_title: str | None,
                                          is_upgrade: bool):
         try:
             file_size, duration, audio_tracks = await thread_out(
@@ -280,6 +290,7 @@ class ProcessingComponent(BaseOperationalComponent):
                          if tvdb_episode.id in torrent.tracked_anime_episode.tvdb_episode_ids]
         webhook_payload = construct_discord_webhook_payload_for_processing_finished(
             anime_title=torrent.tracked_anime_episode.tracked_anime.preferred_title,
+            tvdb_series_title=tvdb_series_title,
             anilist_id=torrent.tracked_anime_episode.tracked_anime.anilist_id,
             mal_id=anilist_anime.idMal,
             nyaa_id=torrent.nyaa_id,

@@ -26,6 +26,7 @@ CASES = [
              discord_notify_on_download_processed=True,
              discord_notify_on_upgrade_download_processed=True,
              discord_notify_on_download_failed=True,
+             discord_send_daily_missing_report=True,
          ),
          expected_discord_user_id="123456789",
          expected_releases_url=None),

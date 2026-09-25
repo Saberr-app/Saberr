@@ -133,7 +133,9 @@ class WorkerManagerService:
             # rss feed
             rss_workers.consume_rss_feeds,
             # notifications
-            notification_workers.process_notifications,
+            notification_workers.produce_download_error_notifications,
+            notification_workers.retract_stale_notifications,
+            notification_workers.produce_missing_episodes_report,
             # processing
             download_workers.post_download_processing,
             download_workers.stuck_check,

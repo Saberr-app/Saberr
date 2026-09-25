@@ -13,10 +13,11 @@ from constants import (SettingsCode, AnilistTitleLanguage, SHOW_DIRECTORY_FORMAT
 from api.schemas.settings_schemas import (SettingsResponse, GeneralSettings, ProfileSettings, QBitServiceSettings,
                                           RSSSettings, ProcessingSettings, DiscordSettings,
                                           AnilistLoginRequest, DiscordWebhookTest, AnilistUserData,
-                                          QBitBaseServiceSettings, MappingsSettings)
+                                          QBitBaseServiceSettings, RSSProxyTest, MappingsSettings)
 from services.anilist_service import AnilistService
 from services.discord_webhook_service import DiscordWebhookService
 from services.qbit_service import QBitService
+from services.rss_service import RSSService
 from system import UNSET
 from utils.helpers.text_helpers import clean_path_name
 
@@ -121,6 +122,8 @@ class SettingsAPIComponent(BaseComponent):
             SettingsCode.AUTO_DOWNLOAD: body.auto_download,
             SettingsCode.RSS_CHECK_FREQUENCY: body.rss_check_frequency,
             SettingsCode.RSS_CATEGORY: body.rss_category,
+            SettingsCode.RSS_PROXY_CONFIG: body.rss_proxy_config,
+            SettingsCode.RSS_PROXY_TORRENT_FILES_ENABLED: body.rss_proxy_torrent_files_enabled,
         })
         global_status.services_status_changed()
         return self._rss_settings(config.user_settings)
@@ -166,6 +169,8 @@ class SettingsAPIComponent(BaseComponent):
                 body.discord_notify_on_upgrade_download_processed,
             SettingsCode.DISCORD_NOTIFY_ON_DOWNLOAD_FAILED:
                 body.discord_notify_on_download_failed,
+            SettingsCode.DISCORD_SEND_DAILY_MISSING_REPORT:
+                body.discord_send_daily_missing_report,
             SettingsCode.DISCORD_USER_ID:
                 body.discord_user_id,
         })
@@ -230,7 +235,9 @@ class SettingsAPIComponent(BaseComponent):
         return RSSSettings(
             auto_download=user_settings.auto_download,
             rss_check_frequency=user_settings.rss_check_frequency,
-            rss_category=user_settings.rss_category
+            rss_category=user_settings.rss_category,
+            rss_proxy_config=user_settings.rss_proxy_config.as_str() if user_settings.rss_proxy_config else None,
+            rss_proxy_torrent_files_enabled=user_settings.rss_proxy_torrent_files_enabled,
         )
 
     # noinspection PyMethodMayBeStatic
@@ -261,6 +268,7 @@ class SettingsAPIComponent(BaseComponent):
             discord_notify_on_download_processed=user_settings.discord_notify_on_download_processed,
             discord_notify_on_upgrade_download_processed=user_settings.discord_notify_on_upgrade_download_processed,
             discord_notify_on_download_failed=user_settings.discord_notify_on_download_failed,
+            discord_send_daily_missing_report=user_settings.discord_send_daily_missing_report,
             discord_user_id=user_settings.discord_user_id,
         )
 
@@ -279,6 +287,12 @@ class SettingsAPIComponent(BaseComponent):
     @api_component
     async def test_discord_webhook_connection(self, body: DiscordWebhookTest):
         await DiscordWebhookService().healthcheck(body.webhook_url)
+
+    @api_component
+    async def test_rss_proxy_connection(self, body: RSSProxyTest):
+        proxy_config = self._settings_component.validate_setting_value(SettingsCode.RSS_PROXY_CONFIG,
+                                                                       body.rss_proxy_config)
+        await RSSService().healthcheck(proxy_config=proxy_config)
 
     @api_component
     async def authenticate_anilist(self, body: AnilistLoginRequest) -> AnilistUserData:

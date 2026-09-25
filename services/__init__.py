@@ -10,12 +10,14 @@ from datetime import timedelta, datetime, UTC
 from functools import wraps
 from typing import Iterable
 
-from aiohttp import FormData,  ClientError
+from aiohttp import FormData, ClientError, ClientTimeout
+from aiohttp_socks import ProxyConnectionError, ProxyTimeoutError, ProxyError
 
 from app_state import CACHED_RESPONSES
 from common.exceptions import ExternalServiceException
 from common.http_session import get_async_http_session, get_sync_http_session
 from dto.http_response import StandardResponse
+from dto.proxy_config import ProxyConfig
 
 
 class ThirdPartyService:
@@ -47,27 +49,28 @@ class ThirdPartyService:
                        headers: dict | None = None,
                        params: dict | None = None,
                        data: dict | FormData | None = None,
+                       proxy_config: ProxyConfig | None = None,
                        force_fetch: bool = False,
                        cache_duration: int = 0,
                        session_name: str | None = None) -> 'StandardResponse':
         if force_fetch or not (standard_response := self._get_cached_response(
-            method=method, url=url, json_=json_, headers=headers, params=params, data=data
+                method=method, url=url, json_=json_, headers=headers,
+                params=params, data=data, proxy_config=proxy_config
         )):
             if self.LOG_REQUESTS:
                 self.logger.debug(f"Making `{method}` request to `{url}`")
-            if session_name:
-                session = await get_async_http_session(session_name, session_lifetime=60*10)
-            else:
-                session = await get_async_http_session(name=self.__class__.__name__)
+            session = await get_async_http_session(name=session_name or self.__class__.__name__,
+                                                   proxy_config=proxy_config)
             try:
                 async with session.request(method=method, url=url, json=json_,
-                                           headers=headers, params=params, data=data) as response:
+                                           headers=headers, params=params, data=data,
+                                           timeout=ClientTimeout(total=120, connect=10)) as response:
                     standard_response = await StandardResponse.from_aiohttp_response(response)
-            except ClientError as e:
+            except (ClientError, ProxyConnectionError, ProxyTimeoutError, ProxyError, TimeoutError) as e:
                 raise ExternalServiceException(f"Failed to connect: {e}", status_code=500) from e
             self._handle_caching(standard_response=standard_response, cache_duration=cache_duration,
                                  data=data, method=method, url=url, json_=json_,
-                                 headers=headers, params=params)
+                                 headers=headers, params=params, proxy_config=proxy_config)
             self._cache_hit.set(False)
         else:
             if self.LOG_REQUESTS:
@@ -107,9 +110,11 @@ class ThirdPartyService:
                              json_: dict | None = None,
                              headers: dict | None = None,
                              params: dict | None = None,
-                             data: dict | None = None) -> 'StandardResponse | None':
+                             data: dict | None = None,
+                             proxy_config: ProxyConfig | None = None) -> 'StandardResponse | None':
         cache_key = self._build_cache_key(method=method, url=url, json_=json_,
-                                          headers=headers, params=params, data=data)
+                                          headers=headers, params=params, data=data,
+                                          proxy_config=proxy_config)
         cached_response = CACHED_RESPONSES.get(cache_key)
         if cached_response and cached_response.cache_expiry < datetime.now(UTC):
             return None
@@ -124,11 +129,13 @@ class ThirdPartyService:
                         url: str,
                         json_: dict | None,
                         headers: dict | None,
-                        params: dict | None) -> None:
+                        params: dict | None,
+                        proxy_config: ProxyConfig | None = None) -> None:
         if not cache_duration or standard_response.status_code >= 400:
             return
         cache_key = self._build_cache_key(method=method, url=url, json_=json_,
-                                          headers=headers, params=params, data=data)
+                                          headers=headers, params=params, data=data,
+                                          proxy_config=proxy_config)
         standard_response.cache_expiry = datetime.now(UTC) + timedelta(seconds=cache_duration)
         CACHED_RESPONSES[cache_key] = standard_response
 
@@ -138,14 +145,15 @@ class ThirdPartyService:
                          json_: dict | None = None,
                          headers: dict | None = None,
                          params: dict | None = None,
-                         data: dict | None = None) -> str:
+                         data: dict | None = None,
+                         proxy_config: ProxyConfig | None = None) -> str:
         def _serialize(value: dict | None) -> str:
             if value is None:
                 return ""
             return json.dumps(value, sort_keys=True, default=str)
 
         raw_key = f"{method}|{url}|{_serialize(json_)}|{_serialize(headers)}|" \
-                  f"{_serialize(params)}|{_serialize(data)}"
+                  f"{_serialize(params)}|{_serialize(data)}|{proxy_config.as_str() if proxy_config else ''}"
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
 
@@ -160,5 +168,7 @@ def reauthenticate_on_error_codes(codes: Iterable[int]):
                     await self.authenticate()
                     return await func(self, *args, **kwargs)
                 raise e
+
         return wrapper
+
     return decorator

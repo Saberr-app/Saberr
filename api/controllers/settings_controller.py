@@ -10,7 +10,7 @@ from api.schemas.settings_schemas import (
     ProcessingSettings,
     DiscordSettings,
     AnilistLoginRequest,
-    DiscordWebhookTest, AnilistUserData, QBitBaseServiceSettings, MappingsSettings
+    DiscordWebhookTest, AnilistUserData, QBitBaseServiceSettings, RSSProxyTest, MappingsSettings
 )
 
 
@@ -70,28 +70,35 @@ async def update_discord_settings(body: DiscordSettings):
 
 @api_v1_router.post("/settings/anilist/test",
                     response_model=DataEnvelope[AnilistUserData],
-                    responses=error_responses(502))
+                    responses=error_responses(424))
 async def test_anilist_authentication(body: AnilistLoginRequest):
     return DataEnvelope(data=await SettingsAPIComponent().check_anilist_authentication(body))
 
 
 @api_v1_router.post("/settings/qbit/test",
                     status_code=204,
-                    responses=error_responses(502))
+                    responses=error_responses(424))
 async def test_qbit_connection(body: QBitBaseServiceSettings):
     return DataEnvelope(data=await SettingsAPIComponent().check_qbit_connection(body))
 
 
 @api_v1_router.post("/settings/discord/test",
                     status_code=204,
-                    responses=error_responses(502))
+                    responses=error_responses(424))
 async def test_discord_webhook_connection(body: DiscordWebhookTest):
     return DataEnvelope(data=await SettingsAPIComponent().test_discord_webhook_connection(body))
 
 
+@api_v1_router.post("/settings/rss_proxy/test",
+                    status_code=204,
+                    responses=error_responses(502))
+async def test_rss_proxy_connection(body: RSSProxyTest):
+    return DataEnvelope(data=await SettingsAPIComponent().test_rss_proxy_connection(body))
+
+
 @api_v1_router.post("/settings/anilist/authenticate",
                     response_model=DataEnvelope[AnilistUserData],
-                    responses=error_responses(422, 502))
+                    responses=error_responses(422, 424))
 async def authenticate_anilist(body: AnilistLoginRequest):
     return DataEnvelope(data=await SettingsAPIComponent().authenticate_anilist(body))
 

@@ -7,8 +7,9 @@ from common.exceptions import InvalidSettingValueException
 from components import BaseComponent
 from config import config
 from constants import SettingsCode, SETTINGS_CODE_FRIENDLY_NAME_MAP, ShowDirectoryFormattingToken, \
-    SeasonDirectoryFormattingToken, EpisodeFormattingToken, AnilistTitleLanguage, RSSCategory
+    SeasonDirectoryFormattingToken, EpisodeFormattingToken, AnilistTitleLanguage, RSSCategory, ProxyProtocol
 from app_state import global_status
+from dto.proxy_config import ProxyConfig
 from repositories.settings_repo import SettingsRepo
 from utils.helpers.path_helpers import is_valid_directory_path
 from utils.helpers.text_helpers import is_valid_url, validate_format_tokens
@@ -45,12 +46,16 @@ class SettingsComponent(BaseComponent):
                 continue
 
             await SettingsRepo(get_session()).update_setting(code, data=value)
+
             setattr(config.user_settings, attr_name, value)
 
             if code not in self.SETTING_CODES_IGNORE_AUDIT_LOG:
                 if code in self.SETTING_CODES_REDACT_VALUE_AUDIT_LOG:
                     old_log_value = "REDACTED" if old_value else "Not set"
                     log_value = "REDACTED"
+                elif code == SettingsCode.RSS_PROXY_CONFIG:
+                    old_log_value = old_value.as_str() if old_value else "Not set"
+                    log_value = value.as_str() if value else "Not set"
                 else:
                     old_log_value = old_value
                     log_value = value
@@ -150,6 +155,27 @@ class SettingsComponent(BaseComponent):
                         else:
                             value = RSSCategory(value)
 
+                case SettingsCode.RSS_PROXY_CONFIG:
+                    require_str(value, nullable=True)
+                    if value:
+                        try:
+                            proxy_config = ProxyConfig.from_str(value)
+                            if not proxy_config.host:
+                                raise ValueError(f"Host is required")
+                            if not proxy_config.port:
+                                raise ValueError(f"Port is required")
+                            if proxy_config.password and not proxy_config.username:
+                                raise ValueError(f"Cannot specify a password without a username")
+                            if proxy_config.username and not proxy_config.password \
+                                    and proxy_config.protocol != ProxyProtocol.SOCKS4:
+                                raise ValueError(f"Cannot specify a username without a password")
+                        except Exception as e:
+                            raise InvalidSettingValueException(f"Invalid proxy config: {value} ({e})") from e
+                        value = proxy_config
+
+                case SettingsCode.RSS_PROXY_TORRENT_FILES_ENABLED:
+                    require_bool(value)
+
                 case SettingsCode.SET_DOWNLOAD_AS_FAILED_AFTER_MINUTES:
                     require_int(value, minimum_value=5)
 
@@ -170,16 +196,19 @@ class SettingsComponent(BaseComponent):
                         raise InvalidSettingValueException(f"Invalid URL: {value}")
 
                 case SettingsCode.DISCORD_NOTIFY_ON_LOGIN:
-                    require_bool(value, nullable=True)
+                    require_bool(value)
 
                 case SettingsCode.DISCORD_NOTIFY_ON_DOWNLOAD_PROCESSED:
-                    require_bool(value, nullable=True)
+                    require_bool(value)
 
                 case SettingsCode.DISCORD_NOTIFY_ON_UPGRADE_DOWNLOAD_PROCESSED:
-                    require_bool(value, nullable=True)
+                    require_bool(value)
 
                 case SettingsCode.DISCORD_NOTIFY_ON_DOWNLOAD_FAILED:
-                    require_bool(value, nullable=True)
+                    require_bool(value)
+
+                case SettingsCode.DISCORD_SEND_DAILY_MISSING_REPORT:
+                    require_bool(value)
 
                 case SettingsCode.DISCORD_USER_ID:
                     require_digit_str(value, nullable=True)

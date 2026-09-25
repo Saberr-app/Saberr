@@ -73,6 +73,8 @@ class RSSSettings(BaseModel):
     auto_download: bool
     rss_check_frequency: int_in_range(ge=30)  # seconds
     rss_category: RSSCategory
+    rss_proxy_config: NonEmptyString | None
+    rss_proxy_torrent_files_enabled: bool
 
 
 class ProcessingSettings(BaseModel):
@@ -97,11 +99,16 @@ class DiscordSettings(BaseModel):
     discord_notify_on_download_processed: bool
     discord_notify_on_upgrade_download_processed: bool
     discord_notify_on_download_failed: bool
+    discord_send_daily_missing_report: bool
     discord_user_id: digit_str() | None = None
 
 
 class DiscordWebhookTest(BaseModel):
     webhook_url: NonEmptyString
+
+
+class RSSProxyTest(BaseModel):
+    rss_proxy_config: NonEmptyString
 
 
 class SettingsResponse(BaseModel):
