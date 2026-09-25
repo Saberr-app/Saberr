@@ -19,7 +19,6 @@ from services.discord_webhook_service import DiscordWebhookService
 from services.qbit_service import QBitService
 from services.rss_service import RSSService
 from system import UNSET
-from utils.helpers.text_helpers import clean_path_name
 
 
 class SettingsAPIComponent(BaseComponent):
@@ -104,7 +103,8 @@ class SettingsAPIComponent(BaseComponent):
             SettingsCode.QBIT_USERNAME: body.qbit_username,
             SettingsCode.QBIT_REMOTE_PATH_MAPPING: qbit_remote_path_mapping,
             SettingsCode.TORRENT_CATEGORY: body.torrent_category,
-            SettingsCode.STAGING_DIRECTORY: clean_path_name(body.staging_directory) if body.staging_directory else None,
+            SettingsCode.STAGING_DIRECTORY: body.staging_directory.strip().rstrip(" .") or None
+            if body.staging_directory else None,
             SettingsCode.ORGANIZE_DOWNLOADS: body.organize_downloads,
             SettingsCode.APPLY_RELEASE_GROUP_AS_TORRENT_TAG: body.apply_release_group_as_torrent_tag,
             SettingsCode.APPLY_ENCODING_AS_TORRENT_TAG: body.apply_encoding_as_torrent_tag,
