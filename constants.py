@@ -85,6 +85,8 @@ class SettingsCode(Enum):
     AUTO_DOWNLOAD = "AUTO_DOWNLOAD"  # toggle for auto-downloading
     RSS_CHECK_FREQUENCY = "RSS_CHECK_FREQUENCY"
     RSS_CATEGORY = "RSS_CATEGORY"
+    RSS_PROXY_CONFIG = "RSS_PROXY_CONFIG"
+    RSS_PROXY_TORRENT_FILES_ENABLED = "RSS_PROXY_TORRENT_FILES_ENABLED"
 
     SET_DOWNLOAD_AS_FAILED_AFTER_MINUTES = "SET_DOWNLOAD_AS_FAILED_AFTER_MINUTES"
     SET_PROCESSING_AS_FAILED_AFTER_MINUTES = "SET_PROCESSING_AS_FAILED_AFTER_MINUTES"
@@ -128,6 +130,8 @@ SETTINGS_CODE_FRIENDLY_NAME_MAP = {
     SettingsCode.AUTO_DOWNLOAD: "Auto Download",
     SettingsCode.RSS_CHECK_FREQUENCY: "RSS Check Frequency",
     SettingsCode.RSS_CATEGORY: "RSS Category",
+    SettingsCode.RSS_PROXY_CONFIG: "RSS Proxy Configuration",
+    SettingsCode.RSS_PROXY_TORRENT_FILES_ENABLED: "Download Torrent Files from RSS via Proxy",
     SettingsCode.SET_DOWNLOAD_AS_FAILED_AFTER_MINUTES: "Set Download as Failed After (Minutes)",
     SettingsCode.SET_PROCESSING_AS_FAILED_AFTER_MINUTES: "Set Processing as Failed After (Minutes)",
     SettingsCode.NOTIFICATIONS_DISCORD_WEBHOOK_URL: "Notifications Discord Webhook URL",
@@ -618,3 +622,9 @@ EPISODE_FORMATTING_TOKEN_VALUE_NAME_MAP = {
 QBITTORRENT_UNFINISHED_STATES = {"allocating", "downloading", "metaDL", "pausedDL", "queuedDL", "stalledDL",
                                  "checkingDL", "forcedDL", "checkingResumeData", "moving", "unknown"}
 QBITTORRENT_ERROR_STATES = {"error", "missingFiles"}
+
+
+class ProxyProtocol(Enum):
+    HTTP = "http"
+    SOCKS5 = "socks5"
+    SOCKS4 = "socks4"

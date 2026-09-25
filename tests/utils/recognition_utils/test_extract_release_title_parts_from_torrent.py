@@ -123,6 +123,86 @@ CASES = [
          expected_result=expect("ASW", "Yuusha-kei ni Shosu", 1, Resolution.P1080, version_number=2,
                                 encoding=Encoding.HEVC)),
 
+    # SubsPlus+: the romaji/full title lives after the "|" separator; the leading name is ignored
+    Case(id="subsplus-title-after-pipe", group_name="SubsPlus+",
+         title="[SubsPlus+] Hell Mode - S02E11 (ADN WEB-DL 1080p AVC AAC) | HELL MODE: The Hardcore Gamer "
+               "Dominates in Another World with Garbage Balancing",
+         expected_result=expect("SubsPlus+",
+                                "HELL MODE: The Hardcore Gamer Dominates in Another World with Garbage Balancing",
+                                11, Resolution.P1080, season_number=2, source=VideoSource.ADN,
+                                encoding=Encoding.AVC)),
+    Case(id="subsplus-v2", group_name="SubsPlus+",
+         title="[SubsPlus+] The World Is Dancing - S01E07v2 (ADN WEB-DL 1080p AVC AAC) | World Is Dancing",
+         expected_result=expect("SubsPlus+", "World Is Dancing", 7, Resolution.P1080, season_number=1,
+                                version_number=2, source=VideoSource.ADN, encoding=Encoding.AVC)),
+    # no "|" separator -> falls back to the leading name
+    Case(id="subsplus-uncensored-no-pipe", group_name="SubsPlus+",
+         title="[SubsPlus+] Yowayowa Sensei - S01E12 (ADN WEB-DL 1080p AVC AAC) (Uncensored)",
+         expected_result=expect("SubsPlus+", "Yowayowa Sensei", 12, Resolution.P1080, season_number=1,
+                                source=VideoSource.ADN, encoding=Encoding.AVC, censorship_status=True)),
+
+    # VARYG: group tag is a suffix; the parenthetical romaji title wins when there is one
+    Case(id="varyg-paren-title", group_name="VARYG",
+         title="The Cat and the Dragon S01E12 The Cat and the Royal Capital Festival 1080p CR WEB-DL AAC2.0 "
+               "H.264-VARYG (Neko to Ryuu, Multi-Subs)",
+         expected_result=expect("VARYG", "Neko to Ryuu", 12, Resolution.P1080, season_number=1,
+                                source=VideoSource.CRUNCHYROLL, encoding=Encoding.AVC)),
+    # trailing parens hold only audio/sub tags -> title comes from the head of the release name
+    Case(id="varyg-tag-only-parens", group_name="VARYG",
+         title="BLACK TORCH S01E11 Black or White 1080p CR WEB-DL MULTi AAC2.0 H.264-VARYG "
+               "(Multi-Audio, Multi-Subs)",
+         expected_result=expect("VARYG", "BLACK TORCH", 11, Resolution.P1080, season_number=1,
+                                source=VideoSource.CRUNCHYROLL, encoding=Encoding.AVC)),
+    Case(id="varyg-repack", group_name="VARYG",
+         title="One Piece S01E1177 A Despicable Hostage Game-Sommerss Brazen Demands REPACK 1080p CR WEB-DL "
+               "AAC2.0 H.264-VARYG (Multi-Subs)",
+         expected_result=expect("VARYG", "One Piece", 1177, Resolution.P1080, season_number=1,
+                                source=VideoSource.CRUNCHYROLL, encoding=Encoding.AVC, repack_indicator=True)),
+    # "HIDI" is HIDIVE's tag in these release names
+    Case(id="varyg-hidi-source-no-parens", group_name="VARYG",
+         title="HELL MODE S02E11 THE LIBERATED 1080p HIDI WEB-DL AAC2.0 H.264-VARYG",
+         expected_result=expect("VARYG", "HELL MODE", 11, Resolution.P1080, season_number=2,
+                                source=VideoSource.HIDIVE, encoding=Encoding.AVC)),
+
+    # ToonsHub: same suffix-tag layout as VARYG, but bracket-prefixed
+    Case(id="toonshub-paren-title", group_name="ToonsHub",
+         title="[ToonsHub] The Cat and the Dragon S01E12 1080p CR WEB-DL AAC2.0 H.264 (Neko to Ryuu, Multi-Subs)",
+         expected_result=expect("ToonsHub", "Neko to Ryuu", 12, Resolution.P1080, season_number=1,
+                                source=VideoSource.CRUNCHYROLL, encoding=Encoding.AVC)),
+    Case(id="toonshub-tag-only-parens", group_name="ToonsHub",
+         title="[ToonsHub] BLACK TORCH S01E11 1080p CR WEB-DL DUAL AAC2.0 H.264 (Dual-Audio, Multi-Subs)",
+         expected_result=expect("ToonsHub", "BLACK TORCH", 11, Resolution.P1080, season_number=1,
+                                source=VideoSource.CRUNCHYROLL, encoding=Encoding.AVC)),
+    Case(id="toonshub-repack-uncensored", group_name="ToonsHub",
+         title="[ToonsHub] KAMUI Hes Behind You S01E08 REPACK 1080p UNCENSORED AMZN WEB-DL DDP2.0 H.264 "
+               "(Ushiro no Shoumen Kamui-san, Multi-Subs)",
+         expected_result=expect("ToonsHub", "Ushiro no Shoumen Kamui-san", 8, Resolution.P1080, season_number=1,
+                                source=VideoSource.AMAZON, encoding=Encoding.AVC, repack_indicator=True,
+                                censorship_status=True)),
+    # unmapped source tag (BILI) -> OTHER
+    Case(id="toonshub-hevc-unknown-source", group_name="ToonsHub",
+         title="[ToonsHub] That Time I Got Reincarnated as a Slime S04E22 1080p BILI WEB-DL AAC2.0 H.265 "
+               "(Tensei Shitara Slime Datta Ken, Multi-Subs)",
+         expected_result=expect("ToonsHub", "Tensei Shitara Slime Datta Ken", 22, Resolution.P1080,
+                                season_number=4, encoding=Encoding.HEVC)),
+    # long-running shows use absolute "EP####" numbering with no season token
+    Case(id="toonshub-absolute-numbering", group_name="ToonsHub",
+         title="[ToonsHub] One Piece EP1177 1080p NF WEB-DL AAC2.0 H.264 (Multi-Subs)",
+         expected_result=expect("ToonsHub", "One Piece", 1177, Resolution.P1080,
+                                source=VideoSource.NETFLIX, encoding=Encoding.AVC)),
+    Case(id="toonshub-absolute-numbering-paren-title", group_name="ToonsHub",
+         title="[ToonsHub] Detective Conan EP1204 1080p CR WEB-DL AAC2.0 H.264 (Meitantei Conan, Multi-Subs)",
+         expected_result=expect("ToonsHub", "Meitantei Conan", 1204, Resolution.P1080,
+                                source=VideoSource.CRUNCHYROLL, encoding=Encoding.AVC)),
+    Case(id="toonshub-absolute-numbering-2160p-hevc", group_name="ToonsHub",
+         title="[ToonsHub] One Piece EP1164 2160p BILI WEB-DL AAC2.0 H.265 (Multi-Subs)",
+         expected_result=expect("ToonsHub", "One Piece", 1164, Resolution.P2160, encoding=Encoding.HEVC)),
+    Case(id="toonshub-specials-season-zero", group_name="ToonsHub",
+         title="[ToonsHub] Kaiju No 8 S00E05 The Vice Captains Troubles 1080p CR WEB-DL MULTi AAC2.0 H.264 "
+               "(Multi-Audio, Multi-Subs)",
+         expected_result=expect("ToonsHub", "Kaiju No 8", 5, Resolution.P1080, season_number=0,
+                                source=VideoSource.CRUNCHYROLL, encoding=Encoding.AVC)),
+
     # batch / unparseable titles -> None
     Case(id="erai-episode-range-batch", group_name="Erai-raws",
          title="[Erai-raws] Dandelion - 01 ~ 07 [1080p NF WEBRip HEVC EAC3][MultiSub] [BATCH]",

@@ -458,6 +458,12 @@ INSERT IGNORE INTO settings (code, data)
 VALUES ('RSS_CATEGORY',
         'English Translated');
 INSERT IGNORE INTO settings (code, data)
+VALUES ('RSS_PROXY_CONFIG',
+        NULL); -- str when filled
+INSERT IGNORE INTO settings (code, data)
+VALUES ('RSS_PROXY_TORRENT_FILES_ENABLED',
+        'true');
+INSERT IGNORE INTO settings (code, data)
 VALUES ('SET_DOWNLOAD_AS_FAILED_AFTER_MINUTES',
         '180');
 INSERT IGNORE INTO settings (code, data)
@@ -468,10 +474,10 @@ VALUES ('NOTIFICATIONS_DISCORD_WEBHOOK_URL',
         NULL); -- str when filled
 INSERT IGNORE INTO settings (code, data)
 VALUES ('DISCORD_WEBHOOK_USERNAME',
-        NULL); -- str when filled
+        'Saberr');
 INSERT IGNORE INTO settings (code, data)
 VALUES ('DISCORD_WEBHOOK_AVATAR_URL',
-        NULL); -- str when filled
+        'https://raw.githubusercontent.com/Saberr-app/Saberr/refs/heads/master/assets/legacy/logo.jpg');
 INSERT IGNORE INTO settings (code, data)
 VALUES ('DISCORD_NOTIFY_ON_LOGIN',
         'false');

@@ -23,6 +23,7 @@ CASES = [
     Case(id="disney plus words", text="Disney Plus", expected_result=VideoSource.DISNEY_PLUS),
     Case(id="adn full name", text="anime digital network", expected_result=VideoSource.ADN),
     Case(id="hidive", text="HIDIVE", expected_result=VideoSource.HIDIVE),
+    Case(id="hidive hidi abbrev", text="HIDI", expected_result=VideoSource.HIDIVE),
     Case(id="hulu", text="hulu", expected_result=VideoSource.HULU),
     Case(id="empty -> OTHER (not None)", text="", expected_result=VideoSource.OTHER),
     Case(id="unknown service -> OTHER", text="unknown service", expected_result=VideoSource.OTHER),

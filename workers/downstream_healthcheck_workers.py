@@ -182,7 +182,7 @@ class DownstreamHealthcheckWorkers(BaseWorkerClass):
 
     async def _check_rss(self):
         try:
-            await self._rss_service.healthcheck()
+            await self._rss_service.healthcheck(proxy_config=config.user_settings.rss_proxy_config)
         except ExternalServiceException as e:
             self._rss_status.healthy = False
             self._rss_status.error_level = ExternalServiceErrorLevel.DOWN \
