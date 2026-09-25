@@ -10,7 +10,7 @@ from components.service_components.anilist_airing_schedule_component import Anil
 from components import BaseComponent
 from components.service_components.tvdb_component import TVDBComponent
 from config import config
-from constants import AnilistFormat, AnilistAnimeFormat, TrackedAnimeStatus, MetadataSource
+from constants import AnilistFormat, TrackedAnimeStatus, MetadataSource
 from dto.anilist import AnilistAnime, AnilistAiringScheduleItem, AnilistUserListEntry
 from api.schemas.anime_schemas import AnimeListRequest, AnimeListResponse, AnimeItem, \
     AnilistItemAiringScheduleItem, AnilistMetadataResponse, AnimeItemWithUserEntry, AnimeExtras, AnimeTitlesResponse
@@ -184,8 +184,7 @@ class AnimeAPIComponent(BaseComponent):
     async def get_anime_extras(self, anilist_id: int, force_freshness: bool) -> AnimeExtras:
         extras = await self._anilist_component.get_anime_extras(anilist_id=anilist_id,
                                                                 force_fetch=force_freshness)
-        user_entry = await self._anilist_list_component.get_user_anime_list_entry(anilist_id=anilist_id,
-                                                                                  force_fetch=force_freshness) \
+        user_list = await self._anilist_list_component.get_user_anime_list() \
             if config.user_settings.anilist_user_token else None
 
         def dig(source, path):
@@ -198,6 +197,10 @@ class AnimeAPIComponent(BaseComponent):
                 except (KeyError, IndexError, TypeError):
                     return None
             return value
+
+        def list_status(relation_anilist_id):
+            entry = user_list.get_entry_by_anime_id(anime_id=relation_anilist_id) if user_list else None
+            return entry.status if entry else None
 
         return AnimeExtras(
             characters=[
@@ -225,9 +228,7 @@ class AnimeAPIComponent(BaseComponent):
                     if dig(edge, ("node", "format"))
                     else None,
                     relation_type=dig(edge, ("relationType",)),
-                    list_status=user_entry.status
-                    if user_entry and dig(edge, ("node", "format")) in AnilistAnimeFormat.as_list()
-                    else None
+                    list_status=list_status(dig(edge, ("node", "id")))
                 )
                 for edge in dig(extras, ("relations", "edges")) or []
             ],
