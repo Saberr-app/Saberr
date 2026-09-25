@@ -5,7 +5,8 @@ import pytest
 
 from common.exceptions import InvalidSettingValueException
 from components.settings_component import SettingsComponent
-from constants import SettingsCode, AnilistTitleLanguage, RSSCategory
+from constants import SettingsCode, AnilistTitleLanguage, RSSCategory, ProxyProtocol
+from dto.proxy_config import ProxyConfig
 
 validate = SettingsComponent.validate_setting_value
 
@@ -49,6 +50,46 @@ CASES = [
     Case(id="invalid format tokens raise",
          code=SettingsCode.DEFAULT_SHOW_DIRECTORY_NAME_FORMAT, value="{nonexistent_token}",
          expected_exception=InvalidSettingValueException),
+    Case(id="proxy http without credentials is coerced to dto",
+         code=SettingsCode.RSS_PROXY_CONFIG, value="http://1.2.3.4:3128",
+         expected_result=ProxyConfig(host="1.2.3.4", port=3128, username=None, password=None,
+                                     protocol=ProxyProtocol.HTTP)),
+    Case(id="proxy socks5 with credentials is coerced to dto",
+         code=SettingsCode.RSS_PROXY_CONFIG, value="socks5://u:p@1.2.3.4:1080",
+         expected_result=ProxyConfig(host="1.2.3.4", port=1080, username="u", password="p",
+                                     protocol=ProxyProtocol.SOCKS5)),
+    Case(id="proxy percent escapes are decoded",
+         code=SettingsCode.RSS_PROXY_CONFIG, value="http://u:p%40s%3As@1.2.3.4:3128",
+         expected_result=ProxyConfig(host="1.2.3.4", port=3128, username="u", password="p@s:s",
+                                     protocol=ProxyProtocol.HTTP)),
+    Case(id="proxy socks4 allows username without password",
+         code=SettingsCode.RSS_PROXY_CONFIG, value="socks4://user@1.2.3.4:1080",
+         expected_result=ProxyConfig(host="1.2.3.4", port=1080, username="user", password=None,
+                                     protocol=ProxyProtocol.SOCKS4)),
+    Case(id="proxy nullable allows none", code=SettingsCode.RSS_PROXY_CONFIG, value=None),
+    Case(id="proxy without host raises",
+         code=SettingsCode.RSS_PROXY_CONFIG, value="http://:3128",
+         expected_exception=InvalidSettingValueException),
+    Case(id="proxy without port raises",
+         code=SettingsCode.RSS_PROXY_CONFIG, value="http://1.2.3.4",
+         expected_exception=InvalidSettingValueException),
+    Case(id="proxy with password but no username raises",
+         code=SettingsCode.RSS_PROXY_CONFIG, value="http://:p@1.2.3.4:3128",
+         expected_exception=InvalidSettingValueException),
+    Case(id="proxy with username but no password raises",
+         code=SettingsCode.RSS_PROXY_CONFIG, value="http://u@1.2.3.4:3128",
+         expected_exception=InvalidSettingValueException),
+    Case(id="proxy with unsupported scheme raises",
+         code=SettingsCode.RSS_PROXY_CONFIG, value="ftp://1.2.3.4:21",
+         expected_exception=InvalidSettingValueException),
+    Case(id="proxy garbage raises",
+         code=SettingsCode.RSS_PROXY_CONFIG, value="garbage",
+         expected_exception=InvalidSettingValueException),
+    Case(id="proxy torrent files flag accepts bool",
+         code=SettingsCode.RSS_PROXY_TORRENT_FILES_ENABLED, value=True, expected_result=True),
+    Case(id="proxy torrent files flag rejects non-bool",
+         code=SettingsCode.RSS_PROXY_TORRENT_FILES_ENABLED, value="yes",
+         expected_exception=InvalidSettingValueException),
 ]
 
 
@@ -61,4 +102,4 @@ def test_validate_setting_value(case: Case):
 
     result = validate(case.code, case.value)
     if case.expected_result is not None:
-        assert result is case.expected_result
+        assert result == case.expected_result

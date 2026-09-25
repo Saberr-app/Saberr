@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 from constants import ReleaseGroupFilterType, Encoding, Resolution, ReleaseGroupEpisodeNumberingAffinity, \
     ReleaseTitlePart, SettingsCode, AnilistTitleLanguage, AnilistScoreFormat, RSSCategory
+from dto.proxy_config import ProxyConfig
 
 
 @dataclass
@@ -35,6 +36,8 @@ class UserSettings:
     auto_download: bool
     rss_check_frequency: int
     rss_category: RSSCategory
+    rss_proxy_config: ProxyConfig | None
+    rss_proxy_torrent_files_enabled: bool
     set_download_as_failed_after_minutes: int
     set_processing_as_failed_after_minutes: int
     notifications_discord_webhook_url: str | None
@@ -55,16 +58,17 @@ class UserSettings:
         key_value = {}
         for key, value in data.items():
             if key == SettingsCode.ANILIST_PREFERRED_TITLE_LANGUAGE.value:
-                key_value[key.lower()] = AnilistTitleLanguage(value)
+                value = AnilistTitleLanguage(value)
             elif key == SettingsCode.RSS_CATEGORY.value:
-                key_value[key.lower()] = RSSCategory(value)
+                value = RSSCategory(value)
             elif key in [SettingsCode.DISCORD_USER_ID.value, SettingsCode.QBIT_USERNAME.value,
                          SettingsCode.QBIT_PASSWORD.value, SettingsCode.ANILIST_USER_TOKEN.value]:
-                key_value[key.lower()] = str(value) if value is not None else None
+                value = str(value) if value is not None else None
             elif key == SettingsCode.QBIT_REMOTE_PATH_MAPPING.value and value is not None:
-                key_value[key.lower()] = tuple(value)
-            else:
-                key_value[key.lower()] = value
+                value = tuple(value)
+            elif key == SettingsCode.RSS_PROXY_CONFIG.value and value is not None:
+                value = ProxyConfig.from_str(value)
+            key_value[key.lower()] = value
         return cls(
             **key_value
         )

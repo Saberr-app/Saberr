@@ -1,6 +1,7 @@
 from common.exceptions import ExternalServiceException
 from config import config
 from constants import RSS_CATEGORY_TO_CODE_MAP
+from dto.proxy_config import ProxyConfig
 from services import ThirdPartyService, StandardResponse
 
 
@@ -15,7 +16,8 @@ class RSSService(ThirdPartyService):
 
     async def fetch_rss(self,
                         query: str | None = None,
-                        release_groups: list[str] | None = None) -> str:
+                        release_groups: list[str] | None = None,
+                        proxy_config: ProxyConfig | None = None) -> str:
         if not query:
             query = ""
         if release_groups:
@@ -25,15 +27,15 @@ class RSSService(ThirdPartyService):
         url = self.BASE_URL + self.Endpoint.RSS.format(
             query=query, category_code=RSS_CATEGORY_TO_CODE_MAP[config.user_settings.rss_category]
         )
-        response = await self._request("GET", url)
+        response = await self._request("GET", url, proxy_config=proxy_config)
         return self._process_response(response)
 
-    async def healthcheck(self):
+    async def healthcheck(self, proxy_config: ProxyConfig | None = None):
         url = self.BASE_URL + self.Endpoint.RSS.format(
             query="nonexistentqueryfortesting",
             category_code=RSS_CATEGORY_TO_CODE_MAP[config.user_settings.rss_category]
         )
-        response = await self._request("GET", url)
+        response = await self._request("GET", url, proxy_config=proxy_config)
         if response.status != 200:
             raise ExternalServiceException(detail="Nyaa error",
                                            status_code=response.status)

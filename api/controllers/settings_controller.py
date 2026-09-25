@@ -10,7 +10,7 @@ from api.schemas.settings_schemas import (
     ProcessingSettings,
     DiscordSettings,
     AnilistLoginRequest,
-    DiscordWebhookTest, AnilistUserData, QBitBaseServiceSettings
+    DiscordWebhookTest, AnilistUserData, QBitBaseServiceSettings, RSSProxyTest
 )
 
 
@@ -80,6 +80,13 @@ async def test_qbit_connection(body: QBitBaseServiceSettings):
                     responses=error_responses(502))
 async def test_discord_webhook_connection(body: DiscordWebhookTest):
     return DataEnvelope(data=await SettingsAPIComponent().test_discord_webhook_connection(body))
+
+
+@api_v1_router.post("/settings/rss_proxy/test",
+                    status_code=204,
+                    responses=error_responses(502))
+async def test_rss_proxy_connection(body: RSSProxyTest):
+    return DataEnvelope(data=await SettingsAPIComponent().test_rss_proxy_connection(body))
 
 
 @api_v1_router.post("/settings/anilist/authenticate",

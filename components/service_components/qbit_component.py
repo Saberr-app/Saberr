@@ -1,12 +1,14 @@
 import asyncio
 from pathlib import Path
 from typing import Iterable
+from urllib.parse import urlparse
 
 from common.exceptions import QbitNotConfiguredException
 from components.service_components import BaseServiceComponent
 from config import config
 from dto.qbit import QBitTorrent
 from services.qbit_service import QBitService
+from services.static_files_service import StaticFilesService
 
 
 class QBitComponent(BaseServiceComponent):
@@ -14,6 +16,7 @@ class QBitComponent(BaseServiceComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._qbit_service = QBitService()
+        self._static_files_service = StaticFilesService()
 
     async def add_torrent(self, torrent_or_magnet_link: str,
                           magnet_hash: str,
@@ -23,14 +26,36 @@ class QBitComponent(BaseServiceComponent):
                           resume_on_add: bool = False) -> QBitTorrent | None:
         if not config.user_settings.qbit_base_url:
             raise QbitNotConfiguredException()
-        await self._qbit_service.add_torrents(torrent_or_magnet_links=[torrent_or_magnet_link],
-                                              save_path=save_path,
-                                              category=category,
-                                              tags=tags)
+        torrent_files = None
+        if self._should_proxy_torrent_file(torrent_or_magnet_link):
+            torrent_files = [await self._fetch_torrent_file(torrent_or_magnet_link)]
+            torrent_or_magnet_link = None
+        await self._qbit_service.add_torrents(
+            torrent_or_magnet_links=[torrent_or_magnet_link] if torrent_or_magnet_link else [],
+            save_path=save_path,
+            category=category,
+            tags=tags,
+            torrent_files=torrent_files)
         await asyncio.sleep(1)
         if resume_on_add:
             await self._qbit_service.start_torrents(hashes=[magnet_hash])
         return await self.get_torrent(magnet_hash)
+
+    @staticmethod
+    def _should_proxy_torrent_file(torrent_or_magnet_link: str) -> bool:
+        return bool(config.user_settings.rss_proxy_config
+                    and config.user_settings.rss_proxy_torrent_files_enabled
+                    and torrent_or_magnet_link.lower().startswith(("http://", "https://")))
+
+    async def _fetch_torrent_file(self, torrent_link: str) -> tuple[str, bytes]:
+        self.logger.debug(f"Fetching torrent file through proxy: {torrent_link}")
+        content = await self._static_files_service.get_arbitrary_file(
+            torrent_link, proxy_config=config.user_settings.rss_proxy_config
+        )
+        file_name = Path(urlparse(torrent_link).path).name or "download"
+        if not file_name.endswith(".torrent"):
+            file_name = f"{file_name}.torrent"
+        return file_name, content
 
     async def get_torrents(self, magnet_hashes: Iterable[str]) -> list[QBitTorrent]:
         if not magnet_hashes:

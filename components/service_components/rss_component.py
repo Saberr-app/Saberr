@@ -59,7 +59,8 @@ class RSSComponent(BaseServiceComponent):
         return raw_torrents
 
     async def get_rss_feed(self, query: str | None = None, release_groups: list[str] | None = None) -> list[NyaaItem]:
-        feed_xml = await self._rss_service.fetch_rss(query=query, release_groups=release_groups)
+        feed_xml = await self._rss_service.fetch_rss(query=query, release_groups=release_groups,
+                                                     proxy_config=config.user_settings.rss_proxy_config)
         return NyaaItem.many_from_xml_string(feed_xml)
 
     async def consume_feed(self):
