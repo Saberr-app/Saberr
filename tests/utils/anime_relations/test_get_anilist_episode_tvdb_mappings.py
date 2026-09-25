@@ -126,6 +126,43 @@ CASES = [
                              tvdb_from=5, tvdb_to=5, granularity=2)],
          anilist_id=100, episode_number=1,
          expected_result=[mapping(8000, 1, 5, part=1, part_ceiling=2)]),
+    # ALWAYS rows outrank IF_MISSING rows of the same anime even when their series key sorts lower
+    Case(id="ALWAYS override row preferred over IF_MISSING row",
+         overrides=[override(IF_MISSING, tvdb_series_id=9000), override(ALWAYS, tvdb_series_id=8000)],
+         anilist_id=100, episode_number=3, expected_result=[mapping(8000, 1, 3)]),
+    # --- hot overrides (ALWAYS targets inside the anibridge maps) ---
+    Case(id="hot override wins over a higher anibridge series key",
+         anilist_tvdb={100: {
+             (9000, 1): {(1, 12): [(1, 12, 1, None)]},
+             (5000, 1): {(1, 12): [(1, 12, 1, ALWAYS)]},
+         }},
+         anilist_id=100, episode_number=3, expected_result=[mapping(5000, 1, 3)]),
+    Case(id="hot override wins over anibridge within the same series key",
+         anilist_tvdb={100: {(5000, 1): {
+             (1, 12): [(1, 12, 1, None)],
+             (1, None): [(13, None, 1, ALWAYS)],
+         }}},
+         anilist_id=100, episode_number=3, expected_result=[mapping(5000, 1, 15)]),
+    Case(id="split cour: episode covered only by anibridge falls through to it",
+         anilist_tvdb={100: {
+             (5000, 1): {(1, 24): [(1, 24, 1, None)]},
+             (5000, 2): {(13, 24): [(1, 12, 1, ALWAYS)]},
+         }},
+         anilist_id=100, episode_number=5, expected_result=[mapping(5000, 1, 5)]),
+    Case(id="split cour: episode covered by the hot override resolves to it",
+         anilist_tvdb={100: {
+             (5000, 1): {(1, 24): [(1, 24, 1, None)]},
+             (5000, 2): {(13, 24): [(1, 12, 1, ALWAYS)]},
+         }},
+         anilist_id=100, episode_number=14, expected_result=[mapping(5000, 2, 2)]),
+    Case(id="user IF_MISSING override ignored when a hot override covers the episode",
+         anilist_tvdb={100: {(5000, 1): {(1, None): [(1, None, 1, ALWAYS)]}}},
+         overrides=[override(IF_MISSING, tvdb_series_id=8000)],
+         anilist_id=100, episode_number=3, expected_result=[mapping(5000, 1, 3)]),
+    Case(id="user ALWAYS override wins over a hot override",
+         anilist_tvdb={100: {(5000, 1): {(1, None): [(1, None, 1, ALWAYS)]}}},
+         overrides=[override(ALWAYS, tvdb_series_id=8000)],
+         anilist_id=100, episode_number=3, expected_result=[mapping(8000, 1, 3)]),
 ]
 
 

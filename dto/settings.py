@@ -54,6 +54,8 @@ class UserSettings:
     anilist_preferred_title_language: AnilistTitleLanguage
     published_url: str | None
 
+    hot_mapping_overrides_enabled: bool
+
     @classmethod
     def from_dict(cls, data: dict) -> 'UserSettings':
         key_value = {}

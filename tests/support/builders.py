@@ -54,6 +54,7 @@ _DEFAULT_USER_SETTINGS = dict(
     timezone="UTC",
     anilist_preferred_title_language=AnilistTitleLanguage.ROMAJI,
     published_url=None,
+    hot_mapping_overrides_enabled=True,
 )
 
 

@@ -1,4 +1,4 @@
-from app_state import global_status
+from app_state import global_status, anime_relations
 from common.context_helpers import create_task
 from common.decorators import api_component
 from common.exceptions import ValidationException
@@ -13,7 +13,7 @@ from constants import (SettingsCode, AnilistTitleLanguage, SHOW_DIRECTORY_FORMAT
 from api.schemas.settings_schemas import (SettingsResponse, GeneralSettings, ProfileSettings, QBitServiceSettings,
                                           RSSSettings, ProcessingSettings, DiscordSettings,
                                           AnilistLoginRequest, DiscordWebhookTest, AnilistUserData,
-                                          QBitBaseServiceSettings, RSSProxyTest)
+                                          QBitBaseServiceSettings, RSSProxyTest, MappingsSettings)
 from services.anilist_service import AnilistService
 from services.discord_webhook_service import DiscordWebhookService
 from services.qbit_service import QBitService
@@ -42,6 +42,7 @@ class SettingsAPIComponent(BaseComponent):
             qbit=self._qbit_service_settings(user_settings),
             rss=self._rss_settings(user_settings),
             processing=self._processing_settings(user_settings),
+            mappings=self._mappings_settings(user_settings),
             discord=self._discord_settings(user_settings),
             meta=SettingsResponse.Metadata(
                 show_directory_formatting_tokens={v: k for k, v in
@@ -139,6 +140,16 @@ class SettingsAPIComponent(BaseComponent):
             SettingsCode.TVDB_STRUCTURE_ENABLED_DEFAULT: body.tvdb_structure_enabled_default,
         })
         return self._processing_settings(config.user_settings)
+
+    @api_component
+    async def update_mappings_settings(self, body: MappingsSettings) -> MappingsSettings:
+        changed = config.user_settings.hot_mapping_overrides_enabled != body.hot_mapping_overrides_enabled
+        await self._settings_component.update_settings({
+            SettingsCode.HOT_MAPPING_OVERRIDES_ENABLED: body.hot_mapping_overrides_enabled,
+        })
+        if changed:
+            await anime_relations.load_relations()
+        return self._mappings_settings(config.user_settings)
 
     @api_component
     async def update_discord_settings(self, body: DiscordSettings) -> DiscordSettings:
@@ -239,6 +250,12 @@ class SettingsAPIComponent(BaseComponent):
             default_episode_file_name_format=user_settings.default_episode_file_name_format,
             default_titleless_episode_file_name_format=user_settings.default_titleless_episode_file_name_format,
             tvdb_structure_enabled_default=user_settings.tvdb_structure_enabled_default,
+        )
+
+    # noinspection PyMethodMayBeStatic
+    def _mappings_settings(self, user_settings) -> MappingsSettings:
+        return MappingsSettings(
+            hot_mapping_overrides_enabled=user_settings.hot_mapping_overrides_enabled,
         )
 
     # noinspection PyMethodMayBeStatic

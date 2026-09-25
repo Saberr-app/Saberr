@@ -229,8 +229,13 @@ class SettingsComponent(BaseComponent):
                     require_str(value, nullable=True, new_lines_allowed=False)
                     if value and not is_valid_url(value):
                         raise InvalidSettingValueException(f"Invalid URL: {value}")
+
                 case SettingsCode.ANILIST_USER_DATA | SettingsCode.ANILIST_USER_TOKEN:
                     pass
+
+                case SettingsCode.HOT_MAPPING_OVERRIDES_ENABLED:
+                    require_bool(value)
+
                 case _:
                     raise InvalidSettingValueException(f"Unknown setting: {code}")
         except (TypeError, ValueError) as e:

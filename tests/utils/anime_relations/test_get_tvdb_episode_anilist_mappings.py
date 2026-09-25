@@ -99,6 +99,17 @@ CASES = [
          tvdb_anilist={(5000, 1): {300: {(1, 12): [(1, 12, 1, None)]}}},
          overrides=[override(ALWAYS, anilist_id=777, tvdb_from=8, tvdb_to=10)],
          series_id=5000, season_number=1, episode_number=4, expected_result=[mapping(300, 4)]),
+    # --- hot overrides (ALWAYS targets inside the anibridge maps) ---
+    Case(id="hot override wins over a higher anilist id",
+         tvdb_anilist={(5000, 1): {
+             300: {(1, 12): [(1, 12, 1, None)]},
+             200: {(1, 12): [(1, 12, 1, ALWAYS)]},
+         }},
+         series_id=5000, season_number=1, episode_number=4, expected_result=[mapping(200, 4)]),
+    Case(id="user ALWAYS override wins over a hot override",
+         tvdb_anilist={(5000, 1): {200: {(1, 12): [(1, 12, 1, ALWAYS)]}}},
+         overrides=[override(ALWAYS, anilist_id=777)],
+         series_id=5000, season_number=1, episode_number=4, expected_result=[mapping(777, 4)]),
 ]
 
 
