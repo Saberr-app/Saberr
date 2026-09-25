@@ -47,6 +47,7 @@ class UserSettings:
     discord_notify_on_download_processed: bool
     discord_notify_on_upgrade_download_processed: bool
     discord_notify_on_download_failed: bool
+    discord_send_daily_missing_report: bool
     discord_user_id: str | None
 
     timezone: str

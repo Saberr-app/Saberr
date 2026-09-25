@@ -491,6 +491,9 @@ INSERT IGNORE INTO settings (code, data)
 VALUES ('DISCORD_NOTIFY_ON_DOWNLOAD_FAILED',
         'true');
 INSERT IGNORE INTO settings (code, data)
+VALUES ('DISCORD_SEND_DAILY_MISSING_REPORT',
+        'false');
+INSERT IGNORE INTO settings (code, data)
 VALUES ('DISCORD_USER_ID',
         NULL); -- str when filled
 INSERT IGNORE INTO settings (code, data)

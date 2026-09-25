@@ -6,6 +6,10 @@ INSERT IGNORE INTO settings (code, data)
 VALUES ('RSS_PROXY_TORRENT_FILES_ENABLED',
         'true');
 
+INSERT IGNORE INTO settings (code, data)
+VALUES ('DISCORD_SEND_DAILY_MISSING_REPORT',
+        'false');
+
 UPDATE `settings`
 SET `data` = 'Saberr'
 WHERE `code` = 'DISCORD_WEBHOOK_USERNAME'

@@ -5,6 +5,7 @@ from app_state import anime_relations
 from common.decorators import api_component
 from common.exceptions import AnilistNotFoundException, ObjectNotFoundException, QbitNotConfiguredException
 from components import BaseComponent
+from components.operational_components.episode_component import EpisodeComponent
 from components.operational_components.tracked_anime_component import TrackedAnimeComponent
 from components.operational_components.tracked_anime_episode_component import TrackedAnimeEpisodeComponent
 from components.service_components.anilist_component import AnilistComponent
@@ -558,44 +559,12 @@ class TrackedAnimeAPIComponent(BaseComponent):
     def _get_episode_stats(tracked_anime: TrackedAnime,
                            anime: AnilistAnime,
                            airing_schedule: list[AnilistAiringScheduleItem]) -> TrackedAnimeItem.EpisodeStats:
-        next_episode = min(schedule_item.episode for schedule_item in airing_schedule) if airing_schedule else None
-        if anime.status == AnilistAnimeStatus.FINISHED \
-                or (not airing_schedule and anime.end_date and anime.end_date.parsed_date()
-                    and (anime.end_date.parsed_date() - timedelta(hours=8)).date() <= datetime.now(UTC).date()):
-            latest_known_episode_number = anime.episodes
-        elif next_episode:
-            latest_known_episode_number = next_episode - 1
-        elif anime.status == AnilistAnimeStatus.NOT_YET_RELEASED:
-            latest_known_episode_number = 0
-        else:
-            latest_known_episode_number = None
-
-        processed_episode_count = downloading_episode_count = failed_episode_count = 0
-        for episode in tracked_anime.episodes:
-            if episode.episode_number < tracked_anime.from_episode or \
-                    (latest_known_episode_number and episode.episode_number > latest_known_episode_number):
-                continue
-            for torrent in episode.torrents:
-                if torrent.effective_download is None:
-                    continue
-                if torrent.effective_download.status == TorrentDownloadStatus.PROCESSED:
-                    processed_episode_count += 1
-                    break
-                elif torrent.effective_download.status in [TorrentDownloadStatus.PROCESSING,
-                                                           TorrentDownloadStatus.DOWNLOADED,
-                                                           TorrentDownloadStatus.DOWNLOADING,
-                                                           TorrentDownloadStatus.PENDING]:
-                    downloading_episode_count += 1
-                    break
-                elif torrent.effective_download.status in [TorrentDownloadStatus.FAILED_PROCESSING,
-                                                           TorrentDownloadStatus.FAILED_DOWNLOAD,
-                                                           TorrentDownloadStatus.FAILED_DOWNLOAD_INIT]:
-                    failed_episode_count += 1
-                    break
-
+        episode_coverage_stats = EpisodeComponent().get_episode_coverage_stats(tracked_anime=tracked_anime,
+                                                                               anime=anime,
+                                                                               airing_schedule=airing_schedule)
         return TrackedAnimeItem.EpisodeStats(
-            latest_known_episode_number=latest_known_episode_number,
-            processed_episode_count=processed_episode_count,
-            downloading_episode_count=downloading_episode_count,
-            failed_episode_count=failed_episode_count
+            latest_known_episode_number=episode_coverage_stats.latest_known_episode_number,
+            processed_episode_count=episode_coverage_stats.processed_episode_count,
+            downloading_episode_count=episode_coverage_stats.downloading_episode_count,
+            failed_episode_count=episode_coverage_stats.failed_episode_count
         )

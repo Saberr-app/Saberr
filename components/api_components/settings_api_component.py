@@ -158,6 +158,8 @@ class SettingsAPIComponent(BaseComponent):
                 body.discord_notify_on_upgrade_download_processed,
             SettingsCode.DISCORD_NOTIFY_ON_DOWNLOAD_FAILED:
                 body.discord_notify_on_download_failed,
+            SettingsCode.DISCORD_SEND_DAILY_MISSING_REPORT:
+                body.discord_send_daily_missing_report,
             SettingsCode.DISCORD_USER_ID:
                 body.discord_user_id,
         })
@@ -249,6 +251,7 @@ class SettingsAPIComponent(BaseComponent):
             discord_notify_on_download_processed=user_settings.discord_notify_on_download_processed,
             discord_notify_on_upgrade_download_processed=user_settings.discord_notify_on_upgrade_download_processed,
             discord_notify_on_download_failed=user_settings.discord_notify_on_download_failed,
+            discord_send_daily_missing_report=user_settings.discord_send_daily_missing_report,
             discord_user_id=user_settings.discord_user_id,
         )
 

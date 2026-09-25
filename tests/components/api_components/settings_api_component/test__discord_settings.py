@@ -31,3 +31,4 @@ def test__discord_settings(case: Case):
     assert section.discord_user_id == user_settings.discord_user_id
     assert section.discord_notify_on_download_processed == user_settings.discord_notify_on_download_processed
     assert section.discord_notify_on_download_failed == user_settings.discord_notify_on_download_failed
+    assert section.discord_send_daily_missing_report == user_settings.discord_send_daily_missing_report

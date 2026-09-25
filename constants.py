@@ -97,6 +97,7 @@ class SettingsCode(Enum):
     DISCORD_NOTIFY_ON_DOWNLOAD_PROCESSED = "DISCORD_NOTIFY_ON_DOWNLOAD_PROCESSED"
     DISCORD_NOTIFY_ON_UPGRADE_DOWNLOAD_PROCESSED = "DISCORD_NOTIFY_ON_UPGRADE_DOWNLOAD_PROCESSED"
     DISCORD_NOTIFY_ON_DOWNLOAD_FAILED = "DISCORD_NOTIFY_ON_DOWNLOAD_FAILED"
+    DISCORD_SEND_DAILY_MISSING_REPORT = "DISCORD_SEND_DAILY_MISSING_REPORT"
     DISCORD_USER_ID = "DISCORD_USER_ID"  # complements webhook url, used to ping the user for errors
     TIMEZONE = "TIMEZONE"
     ANILIST_PREFERRED_TITLE_LANGUAGE = "ANILIST_PREFERRED_TITLE_LANGUAGE"
@@ -140,6 +141,7 @@ SETTINGS_CODE_FRIENDLY_NAME_MAP = {
     SettingsCode.DISCORD_NOTIFY_ON_DOWNLOAD_PROCESSED: "Discord - Notify on Episode Imported",
     SettingsCode.DISCORD_NOTIFY_ON_UPGRADE_DOWNLOAD_PROCESSED: "Discord - Notify on Episode Upgraded",
     SettingsCode.DISCORD_NOTIFY_ON_DOWNLOAD_FAILED: "Discord - Notify on Download/Import Failed",
+    SettingsCode.DISCORD_SEND_DAILY_MISSING_REPORT: "Discord - Send Daily Missing Episodes Report",
     SettingsCode.DISCORD_USER_ID: "Discord User ID",
     SettingsCode.TIMEZONE: "Timezone",
     SettingsCode.ANILIST_PREFERRED_TITLE_LANGUAGE: "AniList Preferred Title Language",
@@ -342,7 +344,9 @@ class WorkerName(Enum):  # sync with FE on enum name change
 
     POLL_DOWNSTREAM_STATUS = "Check downstream services status"
 
-    PROCESS_NOTIFICATIONS = "Process notifications"
+    PRODUCE_DOWNLOAD_ERROR_NOTIFICATIONS = "Produce download error notifications"
+    RETRACT_STALE_NOTIFICATIONS = "Retract stale notifications"
+    PRODUCE_MISSING_EPISODES_REPORT = "Produce missing episodes report"
 
     CONSUME_RSS_FEEDS = "Consume RSS feed"
 

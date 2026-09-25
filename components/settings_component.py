@@ -196,16 +196,19 @@ class SettingsComponent(BaseComponent):
                         raise InvalidSettingValueException(f"Invalid URL: {value}")
 
                 case SettingsCode.DISCORD_NOTIFY_ON_LOGIN:
-                    require_bool(value, nullable=True)
+                    require_bool(value)
 
                 case SettingsCode.DISCORD_NOTIFY_ON_DOWNLOAD_PROCESSED:
-                    require_bool(value, nullable=True)
+                    require_bool(value)
 
                 case SettingsCode.DISCORD_NOTIFY_ON_UPGRADE_DOWNLOAD_PROCESSED:
-                    require_bool(value, nullable=True)
+                    require_bool(value)
 
                 case SettingsCode.DISCORD_NOTIFY_ON_DOWNLOAD_FAILED:
-                    require_bool(value, nullable=True)
+                    require_bool(value)
+
+                case SettingsCode.DISCORD_SEND_DAILY_MISSING_REPORT:
+                    require_bool(value)
 
                 case SettingsCode.DISCORD_USER_ID:
                     require_digit_str(value, nullable=True)
