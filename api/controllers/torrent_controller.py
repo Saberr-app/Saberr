@@ -13,7 +13,7 @@ from api.schemas.torrent_schemas import (TorrentSearchRequest, TorrentDiscardReq
 
 
 @api_v1_router.get("/torrents", response_model=DataEnvelope[TorrentListResponse],
-                   responses=error_responses(502))
+                   responses=error_responses(424))
 async def get_torrents():
     return DataEnvelope(data=await TorrentAPIComponent().get_torrents())
 
@@ -32,7 +32,7 @@ async def get_torrents_pull_status_stream(request: Request, freq: int = 3) -> As
 
 
 @api_v1_router.post("/torrents/search", response_model=DataEnvelope[TorrentListResponse],
-                    responses=error_responses(422, 502))
+                    responses=error_responses(422, 424))
 async def search_torrents(body: TorrentSearchRequest):
     return DataEnvelope(data=await TorrentAPIComponent().search_torrents(body=body))
 

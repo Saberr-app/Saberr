@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Iterable
 
 from sqlalchemy import select, update, delete
@@ -5,8 +6,8 @@ from sqlalchemy.dialects.mysql import insert
 from sqlalchemy.orm import joinedload
 
 from system import UNSET
-from constants import VideoSource, Resolution, Encoding
-from dto.orm_models import Torrent, TrackedAnimeEpisode, TrackedAnime
+from constants import VideoSource, Resolution, Encoding, TrackedAnimeStatus
+from dto.orm_models import Torrent, TrackedAnimeEpisode, TrackedAnime, TorrentDownload
 from repositories import BaseRepo
 
 
@@ -189,5 +190,18 @@ class TorrentRepo(BaseRepo):
             update(Torrent).where(
                 Torrent.magnet_hash.in_(magnet_hashes)
             ).values(**data)
+        )
+        await self._session.flush()
+
+    async def delete_torrents_of_untracked_anime_older_than(self, older_than: datetime):
+        await self._session.execute(
+            delete(Torrent)
+            .where(Torrent.updated_at < older_than)
+            .where(Torrent.tracked_anime_episode_id.in_(
+                select(TrackedAnimeEpisode.id)
+                .join(TrackedAnime, TrackedAnime.id == TrackedAnimeEpisode.tracked_anime_id)
+                .where(TrackedAnime.status == TrackedAnimeStatus.ARCHIVED)
+            ))
+            .where(Torrent.id.not_in(select(TorrentDownload.torrent_id)))
         )
         await self._session.flush()

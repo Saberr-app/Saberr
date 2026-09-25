@@ -9,6 +9,6 @@ from api.schemas.schedule_schemas import AiringScheduleListRequest, AiringSchedu
 
 
 @api_v1_router.get("/schedule", response_model=DataEnvelope[AiringScheduleListResponse],
-                   responses=error_responses(502, 422))
+                   responses=error_responses(424, 422))
 async def get_airing_schedule(params: Annotated[AiringScheduleListRequest, Query()]):
     return DataEnvelope(data=await ScheduleAPIComponent().get_airing_schedule(params=params))

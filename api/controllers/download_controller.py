@@ -52,6 +52,6 @@ async def check_download_retry(download_id: int):
 
 
 @api_v1_router.post("/downloads/{download_id}/delete", status_code=204,
-                    responses=error_responses(404, 422, 502))
+                    responses=error_responses(404, 422, 424))
 async def delete_download(download_id: int, body: DeleteDownloadRequest):
     await DownloadAPIComponent().delete_download(download_id=download_id, body=body)

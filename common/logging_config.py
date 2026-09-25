@@ -2,6 +2,7 @@ import os
 import re
 import glob
 import time
+import atexit
 import logging
 import datetime
 from queue import SimpleQueue
@@ -13,6 +14,7 @@ _FORMAT = "%(asctime)s [%(context_id)s] [%(name)s] %(levelname)s: %(message)s"
 _RETENTION_DAYS = 14
 
 _listener: QueueListener | None = None
+_atexit_registered = False
 
 
 class _ContextIdFilter(logging.Filter):
@@ -100,6 +102,11 @@ def setup_logging(filename: str = "saberr.log", async_safe: bool = True) -> None
 
         _listener = QueueListener(queue, *handlers, respect_handler_level=True)
         _listener.start()
+
+        global _atexit_registered
+        if not _atexit_registered:
+            atexit.register(stop_logging)
+            _atexit_registered = True
     else:
         for handler in handlers:
             handler.addFilter(context_filter)
