@@ -375,6 +375,12 @@ VALUES ('anime-relations.txt',
         'refresh_anilist_episode_count',
         'SCRIPT',
         CURRENT_TIMESTAMP,
+        0),
+       ('overrides.min.json',
+        'relations',
+        'https://raw.githubusercontent.com/Saberr-app/SaberrHotMappings/refs/heads/main/overrides.min.json',
+        'URL',
+        CURRENT_TIMESTAMP,
         0);
 
 -- ##### settings default values #####
@@ -496,3 +502,7 @@ VALUES ('ANILIST_PREFERRED_TITLE_LANGUAGE',
 INSERT IGNORE INTO settings (code, data)
 VALUES ('PUBLISHED_URL',
         NULL); -- str when filled
+
+INSERT IGNORE INTO settings (code, data)
+VALUES ('HOT_MAPPING_OVERRIDES_ENABLED',
+        'true');

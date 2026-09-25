@@ -10,7 +10,7 @@ from api.schemas.settings_schemas import (
     ProcessingSettings,
     DiscordSettings,
     AnilistLoginRequest,
-    DiscordWebhookTest, AnilistUserData, QBitBaseServiceSettings
+    DiscordWebhookTest, AnilistUserData, QBitBaseServiceSettings, MappingsSettings
 )
 
 
@@ -52,6 +52,13 @@ async def update_rss_settings(body: RSSSettings):
                    responses=error_responses(422))
 async def update_processing_settings(body: ProcessingSettings):
     return DataEnvelope(data=await SettingsAPIComponent().update_processing_settings(body))
+
+
+@api_v1_router.put("/settings/mappings",
+                   response_model=DataEnvelope[MappingsSettings],
+                   responses=error_responses(422))
+async def update_mappings_settings(body: MappingsSettings):
+    return DataEnvelope(data=await SettingsAPIComponent().update_mappings_settings(body))
 
 
 @api_v1_router.put("/settings/discord",

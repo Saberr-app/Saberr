@@ -9,6 +9,7 @@ from common.context_helpers import create_task
 from common.decorators import require_db_session
 from common.exceptions import ExternalServiceException, AnilistRelationsEpisodeCountMismatch
 from common.db import get_session
+from config import config
 from constants import CachedAssetType, MappingOverrideMode
 from dto.orm_models import MappingOverride
 from dto.tvdb import AnilistEpisodeTVDBMapping, TVDBEpisodeAnilistMapping
@@ -17,6 +18,7 @@ from repositories.mapping_override_repo import MappingOverrideRepo
 
 class AnimeRelations:
     MAPPINGS_FILENAME = 'mappings.min.json'
+    HOT_OVERRIDES_FILENAME = 'overrides.min.json'
     OFFSET_MAP_FILENAME = 'anime-relations.txt'
     OFFSET_EPISODE_COUNT_MAP_FILENAME = 'anime-relations-anilist-episode-count.txt'
 
@@ -34,7 +36,7 @@ class AnimeRelations:
         self.logger = logging.getLogger(self.__class__.__name__)
 
     @require_db_session
-    async def load_relations(self):  # not necessarily fresh, called on app start
+    async def load_relations(self):  # not necessarily fresh, called on app start and on mappings settings changes
         self.logger.debug("Loading anime relations data...")
         refresh_needed = False
         try:
@@ -45,12 +47,26 @@ class AnimeRelations:
                 lifespan=timedelta(days=1)
             )
         except Exception as e:
-            self.logger.error(f"Failed to load anime relations data: {e}")
+            self.logger.error(f"Failed to load external mappings data: {e}")
             external_mappings_bytes = b'{}'
             refresh_needed = True
         anilist_tvdb_mappings, tvdb_anilist_mappings = self._build_external_mappings(external_mappings_bytes)
         self.logger.info(f"Loaded {len(anilist_tvdb_mappings)} anilist-tvdb mappings, "
                          f"{len(tvdb_anilist_mappings)} tvdb-anilist mappings")
+        if config.user_settings.hot_mapping_overrides_enabled:
+            try:
+                mapping_overrides_bytes = await self.asset_component.get_asset_data_by_filename(
+                    asset_filename=self.HOT_OVERRIDES_FILENAME,
+                    asset_type=CachedAssetType.RELATIONS,
+                    expired_ok=True,
+                    lifespan=timedelta(days=1)
+                )
+            except Exception as e:
+                self.logger.error(f"Failed to load hot overrides: {e}")
+                mapping_overrides_bytes = b'{"mappings": {}}'
+                refresh_needed = True
+            self._override_external_mappings(anilist_tvdb_mappings, tvdb_anilist_mappings, mapping_overrides_bytes)
+            self.logger.info(f"Applied hot mapping overrides")
         try:
             offset_map_bytes = await self.asset_component.get_asset_data_by_filename(
                 asset_filename=self.OFFSET_MAP_FILENAME,
@@ -105,6 +121,17 @@ class AnimeRelations:
             )
             self.logger.debug(f"Refreshed {len(anilist_tvdb_mappings)} anilist-tvdb mappings, "
                               f"{len(tvdb_anilist_mappings)} tvdb-anilist mappings")
+            if config.user_settings.hot_mapping_overrides_enabled:
+                self._override_external_mappings(
+                    anilist_tvdb_mappings, tvdb_anilist_mappings,
+                    await self.asset_component.get_asset_data_by_filename(
+                        asset_filename=self.HOT_OVERRIDES_FILENAME,
+                        asset_type=CachedAssetType.RELATIONS,
+                        lifespan=timedelta(days=1),
+                        force_fetch=True
+                    )
+                )
+                self.logger.debug(f"Applied hot mapping overrides")
             offset_map = self._build_anime_relations_offset_map(
                 await self.asset_component.get_asset_data_by_filename(
                     asset_filename=self.OFFSET_MAP_FILENAME,
@@ -163,23 +190,17 @@ class AnimeRelations:
             if not mappings or anilist_id not in mappings:
                 return [], False
 
-            results: list[AnilistEpisodeTVDBMapping] = []
-            is_strict_override = False
-            for (series_id, season_number), source_map in sorted(mappings[anilist_id].items(), reverse=True):
-                if results:
-                    break
-                for target_episode, part, part_ceiling, target_is_strict_override in \
-                        self._resolve_mapping_targets(episode_number, source_map):
-                    is_strict_override = is_strict_override or target_is_strict_override
-                    results.append(AnilistEpisodeTVDBMapping(
-                        series_id=series_id,
-                        season_number=season_number,
-                        episode_number=target_episode,
-                        part=part,
-                        part_ceiling=part_ceiling
-                    ))
-
-            return results, is_strict_override
+            series_key, targets, is_strict_override = self._pick_resolved_targets(
+                (series_key, self._resolve_mapping_targets(episode_number, source_map))
+                for series_key, source_map in sorted(mappings[anilist_id].items(), reverse=True)
+            )
+            return [AnilistEpisodeTVDBMapping(
+                series_id=series_key[0],
+                season_number=series_key[1],
+                episode_number=target_episode,
+                part=part,
+                part_ceiling=part_ceiling
+            ) for target_episode, part, part_ceiling, _ in targets], is_strict_override
 
     async def get_tvdb_episode_anilist_mappings(self,
                                                 series_id: int,
@@ -210,22 +231,16 @@ class AnimeRelations:
             if not mappings or series_key not in mappings:
                 return [], False
 
-            results: list[TVDBEpisodeAnilistMapping] = []
-            is_strict_override = False
-            for anilist_id, source_map in sorted(mappings[series_key].items(), reverse=True):
-                if results:
-                    break
-                for target_episode, part, part_ceiling, target_is_strict_override in \
-                        self._resolve_mapping_targets(episode_number, source_map):
-                    is_strict_override = is_strict_override or target_is_strict_override
-                    results.append(TVDBEpisodeAnilistMapping(
-                        anilist_id=anilist_id,
-                        episode_number=target_episode,
-                        part=part,
-                        part_ceiling=part_ceiling
-                    ))
-
-            return results, is_strict_override
+            anilist_id, targets, is_strict_override = self._pick_resolved_targets(
+                (anilist_id, self._resolve_mapping_targets(episode_number, source_map))
+                for anilist_id, source_map in sorted(mappings[series_key].items(), reverse=True)
+            )
+            return [TVDBEpisodeAnilistMapping(
+                anilist_id=anilist_id,
+                episode_number=target_episode,
+                part=part,
+                part_ceiling=part_ceiling
+            ) for target_episode, part, part_ceiling, _ in targets], is_strict_override
 
     async def get_anilist_id_tvdb_series_id(self, anilist_id: int) -> int | None:
         overrides = await MappingOverrideRepo(get_session()).get_mapping_overrides_for_anime(anilist_id=anilist_id)
@@ -253,12 +268,24 @@ class AnimeRelations:
                     return float('inf'), series_id
                 return season_number, series_id
 
-            best_series_key = min(mappings[anilist_id], key=season_priority)
-            source_map = mappings[anilist_id][best_series_key]
-            is_strict_override = any(mode == MappingOverrideMode.ALWAYS
-                                     for targets in source_map.values()
-                                     for _, _, _, mode in targets)
-            return best_series_key[0], is_strict_override
+            strict_series_keys = [series_key for series_key, source_map in mappings[anilist_id].items()
+                                  if any(mode == MappingOverrideMode.ALWAYS
+                                         for targets in source_map.values()
+                                         for _, _, _, mode in targets)]
+            best_series_key = min(strict_series_keys or mappings[anilist_id], key=season_priority)
+            return best_series_key[0], bool(strict_series_keys)
+
+    @staticmethod
+    def _pick_resolved_targets(resolved_by_key) -> tuple:
+        # resolved_by_key yields (key, targets) in lookup order, the first key with strict (ALWAYS) targets wins
+        first_resolved = None
+        for key, targets in resolved_by_key:
+            strict_targets = [target for target in targets if target[3]]
+            if strict_targets:
+                return key, strict_targets, True
+            if targets and first_resolved is None:
+                first_resolved = (key, targets, False)
+        return first_resolved or (None, [], False)
 
     @staticmethod
     def _resolve_mapping_targets(
@@ -269,7 +296,7 @@ class AnimeRelations:
         # (target_episode, part, part_ceiling, is_strict_override) tuples.
         # part/part_ceiling are only set when several source episodes collapse into one target (step > 1),
         # e.g. part 3 of 4 -> part=3, part_ceiling=4.
-        # is_strict_override is True when the target comes from an ALWAYS-mode user override.
+        # is_strict_override is True when the target comes from an ALWAYS-mode user override or a hot override.
         results: list[tuple[int, int | None, int | None, bool]] = []
         for (source_start, source_end), target_list in source_map.items():
             if episode_number < source_start:
@@ -453,6 +480,56 @@ class AnimeRelations:
                         tvdb_anilist[series_key][anilist_id].setdefault(source_key, []).extend(targets)
 
         return anilist_tvdb, tvdb_anilist
+
+    def _override_external_mappings(
+            self,
+            anilist_tvdb: dict[int, dict[tuple[int, int], dict[tuple[int, int | None],
+            list[tuple[int, int | None, int, MappingOverrideMode | None]]]]],
+            tvdb_anilist: dict[tuple[int, int], dict[int, dict[tuple[int, int | None],
+            list[tuple[int, int | None, int, MappingOverrideMode | None]]]]],
+            overrides_data: bytes
+    ):
+        # hot overrides are added alongside the anibridge entries, tagged ALWAYS
+        try:
+            raw_overrides = json.loads(overrides_data.decode()).get("mappings") or {}
+            if not isinstance(raw_overrides, dict):
+                raise ValueError("'mappings' is not an object")
+        except (ValueError, AttributeError) as e:
+            self.logger.error(f"Failed to parse hot mapping overrides: {e}")
+            return
+
+        overrides = {}
+        for key, rows in raw_overrides.items():
+            if key.startswith("$"):
+                continue
+            try:
+                overrides[int(key)] = [self._parse_hot_override_row(row) for row in rows]
+            except (TypeError, ValueError, KeyError) as e:
+                self.logger.warning(f"Skipping invalid hot mapping override for anilist:{key}: {e}")
+
+        for anilist_id, rows in overrides.items():
+            for series_id, season_number, anilist_from, anilist_to, tvdb_from, tvdb_to, granularity in rows:
+                series_key = (series_id, season_number)
+                reverse_granularity = -granularity if abs(granularity) >= 2 else granularity
+                anilist_tvdb.setdefault(anilist_id, {}).setdefault(series_key, {}) \
+                    .setdefault((anilist_from, anilist_to), []) \
+                    .append((tvdb_from, tvdb_to, granularity, MappingOverrideMode.ALWAYS))
+                tvdb_anilist.setdefault(series_key, {}).setdefault(anilist_id, {}) \
+                    .setdefault((tvdb_from, tvdb_to), []) \
+                    .append((anilist_from, anilist_to, reverse_granularity, MappingOverrideMode.ALWAYS))
+
+    @staticmethod
+    def _parse_hot_override_row(row: dict) -> tuple[int, int, int, int | None, int, int | None, int]:
+        def optional_int(value) -> int | None:
+            return int(value) if value is not None else None
+
+        granularity = int(row["gran"])
+        if granularity in (0, -1):
+            raise ValueError(f"invalid gran {granularity}")
+        return (int(row["tvdb_series"]), int(row["tvdb_season"]),
+                int(row["anilist_from"]), optional_int(row["anilist_to"]),
+                int(row["tvdb_from"]), optional_int(row["tvdb_to"]),
+                granularity)
 
     @staticmethod
     def _overrides_to_mappings(overrides: list[MappingOverride]) -> tuple[

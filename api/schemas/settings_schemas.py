@@ -85,6 +85,10 @@ class ProcessingSettings(BaseModel):
     tvdb_structure_enabled_default: bool
 
 
+class MappingsSettings(BaseModel):
+    hot_mapping_overrides_enabled: bool
+
+
 class DiscordSettings(BaseModel):
     notifications_discord_webhook_url: NonEmptyString | None = None
     discord_webhook_username: NonEmptyString | None
@@ -124,5 +128,6 @@ class SettingsResponse(BaseModel):
     qbit: QBitServiceSettingsState
     rss: RSSSettings
     processing: ProcessingSettings
+    mappings: MappingsSettings
     discord: DiscordSettings
     meta: Metadata
