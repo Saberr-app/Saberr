@@ -14,6 +14,7 @@ _X = "⨯"  # the season/episode separator used in the TVDB Episode field
 def processing_kwargs(**overrides):
     base = dict(
         anime_title="My Anime",
+        tvdb_series_title="My Anime Series",
         anilist_id=123,
         mal_id=456,
         nyaa_id="789",
@@ -100,6 +101,25 @@ def _specs_human_readable(payload):
     assert "24m" in specs  # 1440s
 
 
+def _field_names(payload):
+    return [f["name"] for f in embed_of(payload)["fields"]]
+
+
+def _series_field_between_episode_fields(payload):
+    assert field_value(payload, "Series") == "My Anime Series"
+    assert _field_names(payload)[:3] == ["Episode", "Series", "TVDB Episode"]
+
+
+def _series_field_absent(payload):
+    assert "Series" not in _field_names(payload)
+    assert _field_names(payload)[:2] == ["Episode", "TVDB Episode"]
+
+
+def _full_field_order(payload):
+    assert _field_names(payload) == ["Episode", "Series", "TVDB Episode", "Overview", "Specs",
+                                     "Release group", "Release title", "Import destination", "Links"]
+
+
 def _overview_present_and_shortened(payload):
     overview = field_value(payload, "Overview")
     assert len(overview) == 500 and overview.endswith("...")
@@ -151,6 +171,14 @@ CASES = [
     Case(id="upgrade styling", kwargs=dict(is_an_upgrade=True), check=_upgrade_styling),
     Case(id="episode field uses the anime episode number",
          check=lambda p: _assert_in("Episode 5", field_value(p, "Episode"))),
+    Case(id="series field sits between episode and tvdb episode",
+         kwargs=dict(tvdb_series_title="My Anime Series"),
+         check=_series_field_between_episode_fields),
+    Case(id="series field absent without a series title", kwargs=dict(tvdb_series_title=None),
+         check=_series_field_absent),
+    Case(id="series field absent for an empty series title", kwargs=dict(tvdb_series_title=""),
+         check=_series_field_absent),
+    Case(id="full field order with every optional field present", check=_full_field_order),
     Case(id="single tvdb episode formatting", kwargs=dict(tvdb_episode_numbers=[5]),
          check=lambda p: _assert_tvdb_episode(p, f"Season 1 {_X} Episode 5 - Episode Title")),
     Case(id="multiple tvdb episode formatting", kwargs=dict(tvdb_episode_numbers=[5, 6]),

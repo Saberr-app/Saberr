@@ -9,6 +9,7 @@ from constants import ExternalLink, NotificationLevel
 
 def construct_discord_webhook_payload_for_processing_finished(
         anime_title: str,
+        tvdb_series_title: str | None,
         anilist_id: int,
         mal_id: int | None,
         nyaa_id: str,
@@ -78,8 +79,11 @@ def construct_discord_webhook_payload_for_processing_finished(
 
     fields = [
         {"name": "Episode", "value": episode_str, "inline": False},
-        {"name": "TVDB Episode", "value": tvdb_episode_str, "inline": False},
     ]
+    if tvdb_series_title:
+        fields.append({"name": "Series", "value": tvdb_series_title, "inline": False})
+    fields.append({"name": "TVDB Episode", "value": tvdb_episode_str, "inline": False})
+
     if tvdb_episode_overview:
         fields.append({"name": "Overview", "value": shorten_text(tvdb_episode_overview, 500), "inline": False})
     fields.extend([
