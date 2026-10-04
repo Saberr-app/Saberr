@@ -2,8 +2,8 @@ __all__ = ['main']
 
 import asyncio
 import io
+import logging
 import re
-import traceback
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -11,7 +11,11 @@ from pathlib import Path
 import aiofiles
 import aiohttp
 
-RELATIONS_DIR = Path(__file__).parent.parent.parent / 'data' / 'relations'
+from config import config
+
+RELATIONS_DIR = Path(config.data_dir) / 'relations'
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -170,5 +174,4 @@ async def main():
     try:
         await _main()
     except Exception as e:
-        print(f"An error occurred while running anime relations episode count refresh script: {e}",
-              traceback.format_exc())
+        logger.error(f"An error occurred while running anime relations episode count refresh script: {e}")
